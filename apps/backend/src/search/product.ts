@@ -16,6 +16,7 @@ const PRODUCT_GRAPH_FIELDS = [
   "description",
   "handle",
   "thumbnail",
+  "images.url",
   "status",
   "created_at",
   "sales_channels.id",
@@ -31,6 +32,7 @@ type ProductRow = {
   description?: string | null;
   handle?: string | null;
   thumbnail?: string | null;
+  images?: ({ url?: string | null } | null)[] | null;
   status?: string | null;
   created_at?: string | Date | null;
   deleted_at?: string | Date | null;
@@ -88,7 +90,10 @@ function toDocument(
     title: product.title ?? null,
     description: product.description ?? null,
     handle: product.handle ?? null,
-    thumbnail: product.thumbnail ?? null,
+    thumbnail:
+      product.thumbnail ??
+      product.images?.find((image) => Boolean(image?.url))?.url ??
+      null,
     created_at: product.created_at ?? null,
     category,
     labels,

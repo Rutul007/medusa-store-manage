@@ -10,7 +10,7 @@ const regionMapCache = {
   regionMapUpdated: Date.now(),
 }
 
-async function getRegionMap(cacheId: string) {
+async function getRegionMap() {
   const { regionMap, regionMapUpdated } = regionMapCache
 
   if (!BACKEND_URL) {
@@ -29,11 +29,7 @@ async function getRegionMap(cacheId: string) {
       headers: {
         "x-publishable-api-key": PUBLISHABLE_API_KEY!,
       },
-      next: {
-        revalidate: 3600,
-        tags: [`regions-${cacheId}`],
-      },
-      cache: "force-cache",
+      cache: "no-store",
     })
 
     if (!response.ok) {
@@ -95,7 +91,7 @@ export async function middleware(request: NextRequest) {
   const cacheIdCookie = request.cookies.get("_medusa_cache_id")
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
-  const regionMap = await getRegionMap(cacheId).catch(() => {
+  const regionMap = await getRegionMap().catch(() => {
     return new Map<string, HttpTypes.StoreRegion>()
   })
   const countryCode = await getCountryCode(request, regionMap)
