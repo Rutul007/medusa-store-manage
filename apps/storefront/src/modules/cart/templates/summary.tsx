@@ -1,9 +1,8 @@
 "use client"
 
-import { Button, Heading } from "@modules/common/components/ui"
+import { Button } from "@modules/common/components/ui"
 
 import CartTotals from "@modules/common/components/cart-totals"
-import Divider from "@modules/common/components/divider"
 import DiscountCode from "@modules/checkout/components/discount-code"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
@@ -26,19 +25,25 @@ const Summary = ({ cart }: SummaryProps) => {
   const step = getCheckoutStep(cart)
 
   return (
-    <div className="flex flex-col gap-y-4">
-      <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
-        Summary
-      </Heading>
-      <DiscountCode cart={cart} />
-      <Divider />
+    <div className="cart-summary">
+      <div className="cart-summary__heading">
+        <p className="eyebrow">A CLEAR VIEW BEFORE CHECKOUT</p>
+        <h2>Order summary</h2>
+      </div>
+      <div className="cart-summary__discount">
+        <DiscountCode cart={cart} />
+      </div>
       <CartTotals totals={cart} />
       <LocalizedClientLink
         href={"/checkout?step=" + step}
+        className="cart-summary__checkout-link"
         data-testid="checkout-button"
       >
-        <Button className="w-full h-10">Go to checkout</Button>
+        <Button className="cart-summary__checkout" size="large">
+          <span>Continue to checkout</span><span aria-hidden="true">↗</span>
+        </Button>
       </LocalizedClientLink>
+      <p className="cart-summary__note">Shipping options and final taxes are confirmed during checkout.</p>
     </div>
   )
 }

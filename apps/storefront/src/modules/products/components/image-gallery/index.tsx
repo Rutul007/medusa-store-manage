@@ -1,39 +1,68 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@modules/common/components/ui"
 import Image from "next/image"
+import { useState } from "react"
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
+  alt: string
 }
 
-const ImageGallery = ({ images }: ImageGalleryProps) => {
+const ImageGallery = ({ images, alt }: ImageGalleryProps) => {
+  const availableImages = images.filter((image) => Boolean(image.url))
+  const [activeImageId, setActiveImageId] = useState<string | null>(null)
+  const activeIndex = Math.max(
+    availableImages.findIndex((image) => image.id === activeImageId),
+    0
+  )
+  const activeImage = availableImages[activeIndex]
+
   return (
-    <div className="flex items-start relative">
-      <div className="flex flex-col flex-1 small:mx-16 gap-y-4">
-        {images.map((image, index) => {
-          return (
-            <Container
-              key={image.id}
-              className="relative aspect-[29/34] w-full overflow-hidden bg-ui-bg-subtle"
-              id={image.id}
-            >
-              {!!image.url && (
-                <Image
-                  src={image.url}
-                  priority={index <= 2 ? true : false}
-                  className="absolute inset-0 rounded-rounded"
-                  alt={`Product image ${index + 1}`}
-                  fill
-                  sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-                  style={{
-                    objectFit: "cover",
-                  }}
-                />
-              )}
-            </Container>
-          )
-        })}
+    <div className="product-gallery">
+      <div className="product-gallery__stage" aria-live="polite">
+        {activeImage?.url ? (
+          <Image
+            key={activeImage.id}
+            src={activeImage.url}
+            alt={`${alt}, view ${activeIndex + 1}`}
+            fill
+            priority
+            sizes="(max-width: 760px) 100vw, 58vw"
+            className="product-gallery__image"
+          />
+        ) : (
+          <div className="product-gallery__empty">
+            <span>CREATA 3D</span>
+            <small>OBJECT IMAGE COMING SOON</small>
+          </div>
+        )}
+        <span className="product-gallery__count">
+          {String(activeIndex + 1).padStart(2, "0")} / {String(availableImages.length).padStart(2, "0")}
+        </span>
       </div>
+
+      {availableImages.length > 1 && (
+        <div className="product-gallery__thumbnails" role="group" aria-label="Product images">
+          {availableImages.map((image, index) => (
+            <button
+              className="product-gallery__thumbnail"
+              key={image.id}
+              type="button"
+              onClick={() => setActiveImageId(image.id)}
+              aria-label={`Show image ${index + 1}`}
+              aria-pressed={activeIndex === index}
+            >
+              <Image
+                src={image.url}
+                alt=""
+                fill
+                sizes="72px"
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

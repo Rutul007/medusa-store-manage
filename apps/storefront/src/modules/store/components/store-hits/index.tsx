@@ -73,7 +73,7 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
         </Text>
       ) : (
         <ul
-          className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
+          className="product-grid grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
           data-testid="products-list"
         >
           {items.map((hit) =>
@@ -81,17 +81,23 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
               <li key={hit.objectID}>
                 <LocalizedClientLink
                   href={`/products/${hit.handle}`}
-                  className="group"
+                  className="product-card group"
                 >
-                  <div data-testid="product-wrapper">
-                    <Thumbnail thumbnail={hit.thumbnail} size="full" />
-                    <div className="flex txt-compact-medium mt-4 justify-between">
+                  <div className="product-card__visual" data-testid="product-wrapper">
+                    <Thumbnail thumbnail={hit.thumbnail} size="square" className="product-card__thumbnail" />
+                    <span className="product-card__arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div className="product-card__details">
+                    <div className="product-card__copy">
+                      <span className="product-card__eyebrow">CREATA OBJECT</span>
                       <Text
-                        className="text-ui-fg-subtle"
+                        className="product-card__title"
                         data-testid="product-title"
                       >
                         {hit.title}
                       </Text>
+                    </div>
+                    <div className="product-card__price">
                       <HitPrice hit={hit} currencyCode={currencyCode} />
                     </div>
                   </div>

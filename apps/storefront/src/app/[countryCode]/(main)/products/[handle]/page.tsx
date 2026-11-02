@@ -16,7 +16,6 @@ type Props = {
   params: Promise<{ countryCode: string; handle: string }>
 }
 
-export const dynamic = "force-static"
 export const revalidate = 60
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

@@ -2,7 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
 import ImageGallery from "."
 
 const getImagesForVariant = (
@@ -22,27 +22,19 @@ const getImagesForVariant = (
   return product.images?.filter((i) => imageIdsMap.has(i.id)) ?? null
 }
 
-/**
- * Shows the images of the variant selected with `?v_id=`. Product pages are
- * statically rendered, so the filter is only applied after hydration.
- */
 const VariantImageGallery = ({
   product,
 }: {
   product: HttpTypes.StoreProduct
 }) => {
   const searchParams = useSearchParams()
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => setIsMounted(true), [])
-
-  const variantId = isMounted ? searchParams.get("v_id") ?? undefined : undefined
+  const variantId = searchParams.get("v_id") ?? undefined
   const images = useMemo(
     () => getImagesForVariant(product, variantId) ?? [],
     [product, variantId]
   )
 
-  return <ImageGallery images={images} />
+  return <ImageGallery images={images} alt={product.title} />
 }
 
 export default VariantImageGallery
