@@ -118,10 +118,12 @@ export async function addToCart({
   variantId,
   quantity,
   countryCode,
+  personalization,
 }: {
   variantId: string
   quantity: number
   countryCode: string
+  personalization?: { answer: string }
 }) {
   if (!variantId) {
     throw new Error("Missing variant ID when adding to cart")
@@ -143,6 +145,11 @@ export async function addToCart({
       {
         variant_id: variantId,
         quantity,
+        ...(personalization && {
+          metadata: {
+            creata_personalization: personalization,
+          },
+        }),
       },
       {},
       headers
@@ -160,9 +167,11 @@ export async function addToCart({
 export async function updateLineItem({
   lineId,
   quantity,
+  metadata,
 }: {
   lineId: string
   quantity: number
+  metadata?: Record<string, unknown>
 }) {
   if (!lineId) {
     throw new Error("Missing lineItem ID when updating line item")
@@ -179,7 +188,7 @@ export async function updateLineItem({
   }
 
   await sdk.store.cart
-    .updateLineItem(cartId, lineId, { quantity }, {}, headers)
+    .updateLineItem(cartId, lineId, { quantity, ...(metadata && { metadata }) }, {}, headers)
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag, { expire: 0 })

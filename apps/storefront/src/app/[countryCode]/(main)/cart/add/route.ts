@@ -40,11 +40,20 @@ const addLineItem = async (
   cartId: string | undefined,
   regionId: string,
   variantId: string,
-  quantity: number
+  quantity: number,
+  personalizationAnswer?: string
 ) => {
   const id =
     cartId ?? (await sdk.store.cart.create({ region_id: regionId })).cart.id
-  await sdk.store.cart.createLineItem(id, { variant_id: variantId, quantity })
+  await sdk.store.cart.createLineItem(id, {
+    variant_id: variantId,
+    quantity,
+    ...(personalizationAnswer && {
+      metadata: {
+        creata_personalization: { answer: personalizationAnswer },
+      },
+    }),
+  })
   return id
 }
 
@@ -78,17 +87,19 @@ export async function POST(
     return new NextResponse("Select a valid product variant", { status: 400 })
   }
 
+  const personalizationAnswer = form.get("personalization_answer")?.toString().trim()
+
   const existingCartId = await getCartId()
   let cartId: string
   try {
-    cartId = await addLineItem(existingCartId, region.id, variantId, quantity)
+    cartId = await addLineItem(existingCartId, region.id, variantId, quantity, personalizationAnswer)
   } catch (error) {
     if (!existingCartId) {
       return new NextResponse(errorMessage(error), { status: 400 })
     }
     // The stored cart may be completed or belong to another region.
     try {
-      cartId = await addLineItem(undefined, region.id, variantId, quantity)
+      cartId = await addLineItem(undefined, region.id, variantId, quantity, personalizationAnswer)
     } catch (retryError) {
       return new NextResponse(errorMessage(retryError), { status: 400 })
     }

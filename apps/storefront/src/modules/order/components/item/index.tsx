@@ -5,6 +5,7 @@ import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
 import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
 import Thumbnail from "@modules/products/components/thumbnail"
+import { PERSONALIZATION_METADATA_KEY } from "@lib/util/personalization"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
@@ -12,6 +13,11 @@ type ItemProps = {
 }
 
 const Item = ({ item, currencyCode }: ItemProps) => {
+  const rawPersonalization = item.metadata?.[PERSONALIZATION_METADATA_KEY]
+  const personalization = rawPersonalization && typeof rawPersonalization === "object"
+    ? rawPersonalization as { question?: unknown; answer?: unknown }
+    : null
+
   return (
     <Table.Row className="w-full" data-testid="product-row">
       <Table.Cell className="!pl-0 p-4 w-24">
@@ -28,6 +34,16 @@ const Item = ({ item, currencyCode }: ItemProps) => {
           {item.product_title}
         </Text>
         <LineItemOptions variant={item.variant} data-testid="product-variant" />
+        {typeof personalization?.answer === "string" && personalization.answer && (
+          <div className="mt-2 flex flex-col gap-0.5" data-testid="product-personalization">
+            <Text className="text-ui-fg-muted text-small-regular">
+              {typeof personalization.question === "string" ? personalization.question : "Personalization"}
+            </Text>
+            <Text className="text-ui-fg-base text-small-semi">
+              {personalization.answer}
+            </Text>
+          </div>
+        )}
       </Table.Cell>
 
       <Table.Cell className="!pr-0">

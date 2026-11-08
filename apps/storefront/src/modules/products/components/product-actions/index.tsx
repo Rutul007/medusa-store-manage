@@ -5,6 +5,10 @@ import { useIntersection } from "@lib/hooks/use-in-view"
 import { notifyCartUpdated } from "@lib/util/cart-events"
 import { isVariantInStock } from "@lib/util/inventory"
 import { HttpTypes } from "@medusajs/types"
+import {
+  getPersonalizationError,
+  getPersonalizationSettings,
+} from "@lib/util/personalization"
 import { Button } from "@modules/common/components/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
@@ -46,7 +50,12 @@ export default function ProductActions({
   )
   const [isUrlVariantApplied, setIsUrlVariantApplied] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const [personalization, setPersonalization] = useState("")
+  const [personalizationError, setPersonalizationError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const countryCode = useParams().countryCode as string
+  const personalizationSettings = getPersonalizationSettings(product)
+  const personalizationInputRef = useRef<HTMLInputElement>(null)
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
@@ -118,16 +127,34 @@ export default function ProductActions({
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return null
 
+    if (personalizationSettings) {
+      const error = getPersonalizationError(personalization, personalizationSettings)
+      if (error) {
+        setPersonalizationError(error)
+        personalizationInputRef.current?.focus()
+        return null
+      }
+    }
+
     setIsAdding(true)
+    setPersonalizationError(null)
+    setActionError(null)
 
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-    })
-    notifyCartUpdated()
-
-    setIsAdding(false)
+    try {
+      await addToCart({
+        variantId: selectedVariant.id,
+        quantity: 1,
+        countryCode,
+        personalization: personalizationSettings && personalization.trim()
+          ? { answer: personalization.trim() }
+          : undefined,
+      })
+      notifyCartUpdated()
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Could not add this item to your cart.")
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -179,6 +206,43 @@ export default function ProductActions({
             )}
           </div>
 
+          {personalizationSettings && (
+            <div className="product-personalization">
+              <label className="product-personalization__label" htmlFor="product-personalization">
+                {personalizationSettings.question}
+                {personalizationSettings.required && <span aria-hidden="true"> *</span>}
+              </label>
+              <input
+                ref={personalizationInputRef}
+                id="product-personalization"
+                className="product-personalization__input"
+                name="personalization_answer"
+                type="text"
+                value={personalization}
+                placeholder={personalizationSettings.placeholder}
+                maxLength={personalizationSettings.maxLength}
+                required={personalizationSettings.required}
+                aria-invalid={Boolean(personalizationError)}
+                aria-describedby={personalizationError ? "product-personalization-error" : "product-personalization-count"}
+                onChange={(event) => {
+                  setPersonalization(event.target.value)
+                  setPersonalizationError(null)
+                }}
+                disabled={isAdding || !!disabled}
+              />
+              {personalizationError ? (
+                <p className="product-personalization__error" id="product-personalization-error" role="alert">
+                  {personalizationError}
+                </p>
+              ) : (
+                <p className="product-personalization__count" id="product-personalization-count">
+                  {personalization.length}/{personalizationSettings.maxLength} characters
+                  {!personalizationSettings.required && " · Optional"}
+                </p>
+              )}
+            </div>
+          )}
+
           <ProductPrice product={product} variant={selectedVariant} />
 
           {selectedVariant && isValidVariant && (
@@ -210,6 +274,7 @@ export default function ProductActions({
               ? "Out of stock"
               : "Add to cart"}
           </Button>
+          {actionError && <p className="product-personalization__error" role="alert">{actionError}</p>}
         </form>
         <MobileActions
           product={product}

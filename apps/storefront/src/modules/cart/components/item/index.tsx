@@ -2,6 +2,10 @@
 
 import { deleteLineItem, updateLineItem } from "@lib/data/cart"
 import { notifyCartUpdated } from "@lib/util/cart-events"
+import {
+  PERSONALIZATION_METADATA_KEY,
+  PersonalizationValue,
+} from "@lib/util/personalization"
 import { HttpTypes } from "@medusajs/types"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
@@ -22,6 +26,12 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isPreview = type === "preview"
+  const rawPersonalization = item.metadata?.[PERSONALIZATION_METADATA_KEY]
+  const personalization = rawPersonalization && typeof rawPersonalization === "object"
+    ? rawPersonalization as PersonalizationValue
+    : null
+  const [editingPersonalization, setEditingPersonalization] = useState(false)
+  const [personalizationDraft, setPersonalizationDraft] = useState(personalization?.answer ?? "")
 
   const changeQuantity = async (quantity: number) => {
     if (quantity < 1 || quantity === item.quantity || updating) {
@@ -54,6 +64,42 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not remove item")
+      setUpdating(false)
+    }
+  }
+
+  const savePersonalization = async () => {
+    if (!personalization || updating) return
+
+    const answer = personalizationDraft.trim()
+    if (personalization.required && !answer) {
+      setError("Please enter the requested personalization.")
+      return
+    }
+    if (answer.length > personalization.maxLength) {
+      setError(`Keep your answer to ${personalization.maxLength} characters or fewer.`)
+      return
+    }
+
+    setError(null)
+    setUpdating(true)
+    try {
+      await updateLineItem({
+        lineId: item.id,
+        quantity: item.quantity,
+        metadata: {
+          ...(item.metadata ?? {}),
+          [PERSONALIZATION_METADATA_KEY]: answer
+            ? { ...personalization, answer }
+            : "",
+        },
+      })
+      setEditingPersonalization(false)
+      notifyCartUpdated()
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update personalization")
+    } finally {
       setUpdating(false)
     }
   }
@@ -93,6 +139,57 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
                 variant={item.variant}
                 data-testid="product-variant"
               />
+            )}
+            {personalization && !editingPersonalization && (
+              <div className="cart-personalization">
+                <span className="cart-personalization__question">{personalization.question}</span>
+                <span className="cart-personalization__answer">{personalization.answer || "No text added"}</span>
+                {!isPreview && (
+                  <button
+                    className="cart-line-item__remove"
+                    type="button"
+                    onClick={() => {
+                      setPersonalizationDraft(personalization.answer)
+                      setEditingPersonalization(true)
+                    }}
+                    disabled={updating}
+                  >
+                    Edit text
+                  </button>
+                )}
+              </div>
+            )}
+            {personalization && editingPersonalization && !isPreview && (
+              <div className="cart-personalization cart-personalization--editing">
+                <label className="cart-personalization__question" htmlFor={`personalization-${item.id}`}>
+                  {personalization.question}
+                </label>
+                <input
+                  id={`personalization-${item.id}`}
+                  className="cart-personalization__input"
+                  type="text"
+                  value={personalizationDraft}
+                  maxLength={personalization.maxLength}
+                  onChange={(event) => setPersonalizationDraft(event.target.value)}
+                  disabled={updating}
+                />
+                <div className="cart-personalization__actions">
+                  <button type="button" onClick={savePersonalization} disabled={updating}>
+                    {updating ? "Saving" : "Save text"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPersonalizationDraft(personalization.answer)
+                      setEditingPersonalization(false)
+                      setError(null)
+                    }}
+                    disabled={updating}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             )}
             {isPreview && (
               <span className="cart-line-item__preview-quantity">

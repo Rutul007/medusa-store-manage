@@ -87,6 +87,15 @@ On mobile, preserve the storefront's sticky purchase action and keep variant sel
 - Quantity changes and removals use the existing Medusa Store API actions, refresh the cart, and expose a clear error if the update fails. Controls need accessible labels and disabled/loading feedback.
 - The empty cart should lead directly back to the localized catalog. The compact cart item preview may be reused in checkout, with quantity and price visible but no editing controls.
 
+## Personalized products
+
+- Product personalization is opt-in per product. Admin settings define the customer question, placeholder, required state, and character limit.
+- The storefront renders a plain text input only when the product is configured for personalization. Show the question, live character count, and direct validation feedback beside the add-to-cart action.
+- Store the product rules in product metadata and the customer's normalized answer plus a question snapshot in that cart line item's metadata. Keep personalization attached to the specific item through checkout and order creation.
+- Validate answers in both the storefront and Medusa Store API. Accept Unicode text, trim surrounding whitespace, enforce the configured character limit, and reject personalization metadata for products that do not support it.
+- Show the question and answer in cart, checkout, customer order details, and the Medusa Admin order details page. Allow customers to correct the answer before checkout.
+- Keep personalization as line-item data. Use product variants only for choices that affect stock or pricing.
+
 ## Data and integration rules
 
 - Product titles, descriptions, options, availability, prices, and specifications come from Medusa. Do not invent missing product data in UI.
@@ -103,6 +112,7 @@ On mobile, preserve the storefront's sticky purchase action and keep variant sel
 - Catalog search cards: `apps/storefront/src/modules/store/components/store-hits/`
 - Product detail layout: `apps/storefront/src/modules/products/templates/`
 - Cart layout and line items: `apps/storefront/src/modules/cart/templates/`, `apps/storefront/src/modules/cart/components/`
+- Product personalization: `apps/backend/src/admin/widgets/product-personalization.tsx`, `apps/backend/src/api/middlewares.ts`, `apps/storefront/src/lib/util/personalization.ts`
 - Product gallery and options: `apps/storefront/src/modules/products/components/image-gallery/`, `apps/storefront/src/modules/products/components/product-actions/`
 - Search index: `apps/backend/src/search/product.ts`, `apps/backend/src/search/helpers/pricing.ts`
 
