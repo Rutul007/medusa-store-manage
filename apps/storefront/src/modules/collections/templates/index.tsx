@@ -24,27 +24,35 @@ export default function CollectionTemplate({
   const sort = sortBy || "created_at"
 
   return (
-    <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
-      <RefinementList sortBy={sort} hideOptionsPicker />
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1>{collection.title}</h1>
-        </div>
-        <Suspense
-          fallback={
-            <SkeletonProductGrid
-              numberOfProducts={collection.products?.length}
+    <div className="py-10 sm:py-14 content-container">
+      <div className="mb-8 border-b-2 border-creata-ink pb-5">
+        <span className="zine-sticker bg-creata-yellow px-3 py-1 font-mono text-[11px] font-bold uppercase text-creata-ink -rotate-1">
+          Collection // CREATA 3D
+        </span>
+        <h1 className="mt-3 font-display font-extrabold uppercase text-4xl sm:text-5xl tracking-tight text-creata-ink leading-none">
+          {collection.title}
+        </h1>
+      </div>
+
+      <div className="flex flex-col small:flex-row small:items-start gap-7">
+        <RefinementList sortBy={sort} hideOptionsPicker />
+        <div className="w-full min-w-0">
+          <Suspense
+            fallback={
+              <SkeletonProductGrid
+                numberOfProducts={collection.products?.length}
+              />
+            }
+          >
+            <PaginatedProducts
+              sortBy={sort}
+              page={pageNumber}
+              collectionId={collection.id}
+              countryCode={countryCode}
+              optionValueIds={optionValueIds}
             />
-          }
-        >
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            collectionId={collection.id}
-            countryCode={countryCode}
-            optionValueIds={optionValueIds}
-          />
-        </Suspense>
+          </Suspense>
+        </div>
       </div>
     </div>
   )

@@ -64,18 +64,20 @@ const RefinementList = ({
     })
 
   return (
-    <div className="flex flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
-      <SortProducts
-        sortBy={sortBy}
-        setQueryParams={setQueryParams}
-        data-testid={dataTestId}
-      />
-      {!hideOptionsPicker && (
-        <OptionsPicker
-          selectedValueIds={selectedOptionValueIds}
-          setOptionValueIds={setOptionValueIds}
+    <div className="small:w-[270px] small:shrink-0 small:sticky small:top-24">
+      <div className="border-2 border-creata-ink bg-white shadow-zine-md p-5 flex flex-col gap-6">
+        <SortProducts
+          sortBy={sortBy}
+          setQueryParams={setQueryParams}
+          data-testid={dataTestId}
         />
-      )}
+        {!hideOptionsPicker && (
+          <OptionsPicker
+            selectedValueIds={selectedOptionValueIds}
+            setOptionValueIds={setOptionValueIds}
+          />
+        )}
+      </div>
     </div>
   )
 }

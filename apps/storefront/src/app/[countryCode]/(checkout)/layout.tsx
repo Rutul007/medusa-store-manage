@@ -1,6 +1,6 @@
+import { BrandLogo } from "@modules/common/components/brand-mark"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ChevronDown from "@modules/common/icons/chevron-down"
-import MedusaCTA from "@modules/layout/components/medusa-cta"
 
 export default function CheckoutLayout({
   children,
@@ -8,36 +8,43 @@ export default function CheckoutLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="w-full bg-white relative small:min-h-screen">
-      <div className="h-16 bg-white border-b ">
-        <nav className="flex h-full items-center content-container justify-between">
-          <LocalizedClientLink
-            href="/cart"
-            className="text-small-semi text-ui-fg-base flex items-center gap-x-2 uppercase flex-1 basis-0"
-            data-testid="back-to-cart-link"
-          >
-            <ChevronDown className="rotate-90" size={16} />
-            <span className="mt-px hidden small:block txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base ">
-              Back to shopping cart
-            </span>
-            <span className="mt-px block small:hidden txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base">
-              Back
-            </span>
-          </LocalizedClientLink>
+    <div className="w-full text-creata-ink min-h-screen flex flex-col">
+      <div className="h-[72px] bg-creata-cream border-b-2 border-creata-ink sticky top-0 z-40">
+        <nav className="flex h-full items-center content-container justify-between gap-4">
+          <div className="flex-1 basis-0">
+            <LocalizedClientLink
+              href="/cart"
+              className="inline-flex items-center gap-2 px-3 py-1.5 border-[1.5px] border-creata-ink bg-white hover:bg-creata-yellow font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink shadow-zine-sm transition-colors"
+              data-testid="back-to-cart-link"
+            >
+              <ChevronDown className="rotate-90" size={14} />
+              <span className="hidden small:inline">BACK TO BAG</span>
+              <span className="inline small:hidden">BACK</span>
+            </LocalizedClientLink>
+          </div>
           <LocalizedClientLink
             href="/"
-            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
+            className="group inline-flex items-center"
             data-testid="store-link"
           >
-            Medusa Store
+            <BrandLogo />
           </LocalizedClientLink>
-          <div className="flex-1 basis-0" />
+          <div className="flex-1 basis-0 flex justify-end">
+            <span className="hidden xsmall:inline-flex px-2.5 py-1 border-[1.5px] border-creata-ink bg-creata-yellow font-mono text-[10px] font-bold uppercase tracking-wider text-creata-ink -rotate-1 shadow-zine-sm">
+              CHECKOUT
+            </span>
+          </div>
         </nav>
       </div>
-      <div className="relative" data-testid="checkout-container">{children}</div>
-      <div className="py-4 w-full flex items-center justify-center">
-        <MedusaCTA />
+      <div className="relative flex-1" data-testid="checkout-container">
+        {children}
       </div>
+      <footer className="py-6 border-t-2 border-creata-ink bg-creata-yellow">
+        <div className="content-container flex items-center justify-between text-xs font-mono font-bold uppercase text-creata-ink">
+          <span>© {new Date().getFullYear()} CREATA 3D</span>
+          <span>SECURE CHECKOUT</span>
+        </div>
+      </footer>
     </div>
   )
 }

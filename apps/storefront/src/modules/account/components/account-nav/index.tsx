@@ -30,76 +30,70 @@ const AccountNav = ({
         {route !== `/${countryCode}/account` ? (
           <LocalizedClientLink
             href="/account"
-            className="flex items-center gap-x-2 text-small-regular py-2"
+            className="inline-flex items-center gap-x-2 px-3.5 py-2 border-[1.5px] border-creata-ink bg-creata-yellow font-mono text-xs font-bold uppercase text-creata-ink shadow-zine-sm"
             data-testid="account-main-link"
           >
-            <>
-              <ChevronDown className="transform rotate-90" />
-              <span>Account</span>
-            </>
+            <ChevronDown className="transform rotate-90" />
+            <span>ACCOUNT</span>
           </LocalizedClientLink>
         ) : (
           <>
-            <div className="text-xl-semi mb-4 px-8">
-              Hello {customer?.first_name}
+            <div className="font-display font-extrabold text-2xl uppercase text-creata-ink mb-4">
+              HELLO {customer?.first_name}
             </div>
-            <div className="text-base-regular">
-              <ul>
+            <div className="text-sm">
+              <ul className="divide-y-2 divide-creata-ink border-y-2 border-creata-ink">
                 <li>
                   <LocalizedClientLink
                     href="/account/profile"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
+                    className="flex items-center justify-between py-4 hover:bg-creata-yellow-soft px-2"
                     data-testid="profile-link"
                   >
-                    <>
-                      <div className="flex items-center gap-x-2">
-                        <User size={20} />
-                        <span>Profile</span>
-                      </div>
-                      <ChevronDown className="transform -rotate-90" />
-                    </>
+                    <div className="flex items-center gap-x-2.5 text-creata-ink font-mono text-xs font-bold uppercase">
+                      <User size={18} />
+                      <span>PROFILE</span>
+                    </div>
+                    <ChevronDown className="transform -rotate-90 text-creata-ink" />
                   </LocalizedClientLink>
                 </li>
                 <li>
                   <LocalizedClientLink
                     href="/account/addresses"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
+                    className="flex items-center justify-between py-4 hover:bg-creata-yellow-soft px-2"
                     data-testid="addresses-link"
                   >
-                    <>
-                      <div className="flex items-center gap-x-2">
-                        <MapPin size={20} />
-                        <span>Addresses</span>
-                      </div>
-                      <ChevronDown className="transform -rotate-90" />
-                    </>
+                    <div className="flex items-center gap-x-2.5 text-creata-ink font-mono text-xs font-bold uppercase">
+                      <MapPin size={18} />
+                      <span>ADDRESSES</span>
+                    </div>
+                    <ChevronDown className="transform -rotate-90 text-creata-ink" />
                   </LocalizedClientLink>
                 </li>
                 <li>
                   <LocalizedClientLink
                     href="/account/orders"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8"
+                    className="flex items-center justify-between py-4 hover:bg-creata-yellow-soft px-2"
                     data-testid="orders-link"
                   >
-                    <div className="flex items-center gap-x-2">
-                      <Package size={20} />
-                      <span>Orders</span>
+                    <div className="flex items-center gap-x-2.5 text-creata-ink font-mono text-xs font-bold uppercase">
+                      <Package size={18} />
+                      <span>ORDERS</span>
                     </div>
-                    <ChevronDown className="transform -rotate-90" />
+                    <ChevronDown className="transform -rotate-90 text-creata-ink" />
                   </LocalizedClientLink>
                 </li>
                 <li>
                   <button
                     type="button"
-                    className="flex items-center justify-between py-4 border-b border-gray-200 px-8 w-full"
+                    className="flex items-center justify-between py-4 w-full text-creata-ink hover:text-creata-coral font-mono text-xs font-bold uppercase px-2"
                     onClick={handleLogout}
                     data-testid="logout-button"
                   >
-                    <div className="flex items-center gap-x-2">
+                    <div className="flex items-center gap-x-2.5">
                       <ArrowRightOnRectangle />
-                      <span>Log out</span>
+                      <span>LOG OUT</span>
                     </div>
-                    <ChevronDown className="transform -rotate-90" />
+                    <ChevronDown className="transform -rotate-90 text-creata-ink" />
                   </button>
                 </li>
               </ul>
@@ -107,61 +101,61 @@ const AccountNav = ({
           </>
         )}
       </div>
+
       <div className="hidden small:block" data-testid="account-nav">
-        <div>
-          <div className="pb-4">
-            <h3 className="text-base-semi">Account</h3>
-          </div>
-          <div className="text-base-regular">
-            <ul className="flex mb-0 justify-start items-start flex-col gap-y-4">
-              <li>
-                <AccountNavLink
-                  href="/account"
-                  route={route!}
-                  data-testid="overview-link"
-                >
-                  Overview
-                </AccountNavLink>
-              </li>
-              <li>
-                <AccountNavLink
-                  href="/account/profile"
-                  route={route!}
-                  data-testid="profile-link"
-                >
-                  Profile
-                </AccountNavLink>
-              </li>
-              <li>
-                <AccountNavLink
-                  href="/account/addresses"
-                  route={route!}
-                  data-testid="addresses-link"
-                >
-                  Addresses
-                </AccountNavLink>
-              </li>
-              <li>
-                <AccountNavLink
-                  href="/account/orders"
-                  route={route!}
-                  data-testid="orders-link"
-                >
-                  Orders
-                </AccountNavLink>
-              </li>
-              <li className="text-grey-700">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  data-testid="logout-button"
-                >
-                  Log out
-                </button>
-              </li>
-            </ul>
-          </div>
+        <div className="pb-4">
+          <span className="inline-flex px-2.5 py-1 border-[1.5px] border-creata-ink bg-creata-yellow font-mono text-[10px] font-bold uppercase tracking-widest text-creata-ink">
+            STUDIO ACCOUNT
+          </span>
         </div>
+        <ul className="flex flex-col gap-y-2 text-sm">
+          <li>
+            <AccountNavLink
+              href="/account"
+              route={route!}
+              data-testid="overview-link"
+            >
+              OVERVIEW
+            </AccountNavLink>
+          </li>
+          <li>
+            <AccountNavLink
+              href="/account/profile"
+              route={route!}
+              data-testid="profile-link"
+            >
+              PROFILE
+            </AccountNavLink>
+          </li>
+          <li>
+            <AccountNavLink
+              href="/account/addresses"
+              route={route!}
+              data-testid="addresses-link"
+            >
+              ADDRESSES
+            </AccountNavLink>
+          </li>
+          <li>
+            <AccountNavLink
+              href="/account/orders"
+              route={route!}
+              data-testid="orders-link"
+            >
+              ORDERS
+            </AccountNavLink>
+          </li>
+          <li className="pt-2">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full text-left px-3.5 py-2 border-[1.5px] border-dashed border-creata-ink text-creata-ink hover:bg-creata-coral hover:text-white font-mono text-xs font-bold uppercase transition-colors"
+              data-testid="logout-button"
+            >
+              LOG OUT
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   )
@@ -186,9 +180,13 @@ const AccountNavLink = ({
   return (
     <LocalizedClientLink
       href={href}
-      className={clx("text-ui-fg-subtle hover:text-ui-fg-base", {
-        "text-ui-fg-base font-semibold": active,
-      })}
+      className={clx(
+        "block px-3.5 py-2 border-[1.5px] border-creata-ink font-mono text-xs font-bold uppercase transition-colors",
+        {
+          "bg-creata-ink text-creata-yellow shadow-zine-sm": active,
+          "bg-white text-creata-ink hover:bg-creata-yellow": !active,
+        }
+      )}
       data-testid={dataTestId}
     >
       {children}

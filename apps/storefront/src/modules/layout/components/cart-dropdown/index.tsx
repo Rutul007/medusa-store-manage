@@ -1,257 +1,388 @@
 "use client"
 
+import { Dialog, Transition } from "@headlessui/react"
+import { XMark } from "@medusajs/icons"
+import { deleteLineItem, retrieveCart, updateLineItem } from "@lib/data/cart"
 import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from "@headlessui/react"
-import { retrieveCart } from "@lib/data/cart"
-import { CART_UPDATED_EVENT } from "@lib/util/cart-events"
+  CART_UPDATED_EVENT,
+  CartUpdatedDetail,
+  notifyCartUpdated,
+} from "@lib/util/cart-events"
 import { convertToLocale } from "@lib/util/money"
+import {
+  PERSONALIZATION_METADATA_KEY,
+  PersonalizationValue,
+} from "@lib/util/personalization"
 import { HttpTypes } from "@medusajs/types"
-import { Button } from "@modules/common/components/ui"
-import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "@modules/products/components/thumbnail"
-import { usePathname } from "next/navigation"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { Fragment, useEffect, useState } from "react"
 
 const countItems = (cart?: HttpTypes.StoreCart | null) =>
   cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0
+
+const CartDrawerItem = ({
+  item,
+  currencyCode,
+  onNavigate,
+  onMutated,
+}: {
+  item: HttpTypes.StoreCartLineItem
+  currencyCode: string
+  onNavigate: () => void
+  onMutated: () => void
+}) => {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const rawPersonalization = item.metadata?.[PERSONALIZATION_METADATA_KEY]
+  const personalization =
+    rawPersonalization && typeof rawPersonalization === "object"
+      ? (rawPersonalization as PersonalizationValue)
+      : null
+
+  const updateQty = async (nextQty: number) => {
+    if (nextQty < 1 || nextQty === item.quantity || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await updateLineItem({ lineId: item.id, quantity: nextQty })
+      onMutated()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update quantity")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const remove = async () => {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await deleteLineItem(item.id)
+      onMutated()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not remove item")
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div
+      className={`bg-white border-2 border-creata-ink shadow-[3px_3px_0_#111111] p-3 grid grid-cols-[68px_1fr] gap-3 transition-opacity ${
+        busy ? "opacity-60" : ""
+      }`}
+      data-testid="cart-item"
+    >
+      <LocalizedClientLink
+        href={`/products/${item.product_handle}`}
+        onClick={onNavigate}
+        className="w-[68px] h-[68px] border-[1.5px] border-creata-ink overflow-hidden bg-creata-cream block"
+      >
+        <Thumbnail
+          thumbnail={item.thumbnail}
+          images={item.variant?.product?.images}
+          size="square"
+          className="!p-0 !rounded-none !border-0"
+        />
+      </LocalizedClientLink>
+
+      <div className="min-w-0 flex flex-col justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h4 className="font-display font-extrabold text-sm text-creata-ink leading-snug truncate">
+              <LocalizedClientLink
+                href={`/products/${item.product_handle}`}
+                onClick={onNavigate}
+                className="hover:underline"
+                data-testid="product-link"
+              >
+                {item.title}
+              </LocalizedClientLink>
+            </h4>
+            {item.variant && item.variant.title !== "Default variant" && (
+              <div className="text-xs text-creata-muted mt-0.5">
+                <LineItemOptions
+                  variant={item.variant}
+                  data-testid="cart-item-variant"
+                  data-value={item.variant}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="shrink-0 font-mono text-xs font-bold text-creata-ink">
+            <LineItemPrice
+              item={item}
+              style="tight"
+              currencyCode={currencyCode}
+            />
+          </div>
+        </div>
+
+        {personalization?.answer && (
+          <div className="px-2.5 py-1 bg-creata-yellow border-[1.5px] border-creata-ink font-mono text-[11px] font-bold text-creata-ink break-words">
+            STAMP: &ldquo;{personalization.answer}&rdquo;
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <div className="inline-flex items-center border-[1.5px] border-creata-ink bg-creata-cream">
+            <button
+              type="button"
+              onClick={() => updateQty(item.quantity - 1)}
+              disabled={busy || item.quantity <= 1}
+              className="w-7 h-7 font-mono text-sm font-bold text-creata-ink disabled:opacity-40"
+              aria-label={`Decrease ${item.title} quantity`}
+            >
+              -
+            </button>
+            <span
+              className="min-w-[26px] h-7 px-1 border-x-[1.5px] border-creata-ink grid place-items-center font-mono text-xs font-bold text-creata-ink"
+              data-testid="cart-item-quantity"
+              data-value={item.quantity}
+            >
+              {item.quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => updateQty(item.quantity + 1)}
+              disabled={busy}
+              className="w-7 h-7 font-mono text-sm font-bold text-creata-ink disabled:opacity-40"
+              aria-label={`Increase ${item.title} quantity`}
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={remove}
+            disabled={busy}
+            className="font-mono text-[11px] font-bold uppercase text-creata-ink hover:text-creata-coral underline underline-offset-2"
+            data-testid="cart-item-remove-button"
+          >
+            DEL
+          </button>
+        </div>
+
+        {error && (
+          <p className="text-xs font-semibold text-rose-700" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const CartDropdown = ({
   cart: serverCart,
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
-  // Statically rendered pages can't read the cart cookie, so the cart is loaded in the browser.
+  const router = useRouter()
+  const pathname = usePathname()
   const [clientCart, setClientCart] = useState<HttpTypes.StoreCart | null>(null)
-  const cartState = serverCart ?? clientCart
-  const [activeTimer, setActiveTimer] = useState<NodeJS.Timer | undefined>(
-    undefined
-  )
-  const [cartDropdownOpen, setCartDropdownOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
-  const open = () => setCartDropdownOpen(true)
-  const close = () => setCartDropdownOpen(false)
-
+  const cartState = clientCart ?? serverCart
   const totalItems = countItems(cartState)
-
   const subtotal = cartState?.subtotal ?? 0
-  const itemRef = useRef<number>(totalItems || 0)
 
   useEffect(() => {
-    if (serverCart) {
-      return
-    }
+    let active = true
 
-    let isInitialLoad = true
-    const load = () =>
+    const syncCart = (shouldOpen = false) => {
       retrieveCart()
         .then((cart) => {
-          if (isInitialLoad) {
-            // Don't auto-open the dropdown for items that were already in the cart.
-            itemRef.current = countItems(cart)
-            isInitialLoad = false
-          }
+          if (!active) return
           setClientCart(cart)
+          if (
+            shouldOpen &&
+            !pathname.includes("/cart") &&
+            !pathname.includes("/checkout")
+          ) {
+            setIsOpen(true)
+          }
         })
         .catch(() => {})
-
-    load()
-    window.addEventListener(CART_UPDATED_EVENT, load)
-    return () => window.removeEventListener(CART_UPDATED_EVENT, load)
-  }, [serverCart])
-
-  const timedOpen = () => {
-    open()
-
-    const timer = setTimeout(close, 5000)
-
-    setActiveTimer(timer)
-  }
-
-  const openAndCancel = () => {
-    if (activeTimer) {
-      clearTimeout(activeTimer)
     }
 
-    open()
-  }
+    if (!serverCart) {
+      syncCart(false)
+    }
 
-  // Clean up the timer when the component unmounts
-  useEffect(() => {
+    const handleCartUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<CartUpdatedDetail>)?.detail
+      syncCart(Boolean(detail?.openDrawer))
+    }
+
+    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdated)
     return () => {
-      if (activeTimer) {
-        clearTimeout(activeTimer)
-      }
+      active = false
+      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated)
     }
-  }, [activeTimer])
+  }, [serverCart, pathname])
 
-  const pathname = usePathname()
+  const close = () => setIsOpen(false)
 
-  // open cart dropdown when modifying the cart items, but only if we're not on the cart page
-  useEffect(() => {
-    if (itemRef.current !== totalItems && !pathname.includes("/cart")) {
-      timedOpen()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalItems, itemRef.current])
+  const sortedItems = cartState?.items
+    ? [...cartState.items].sort((a, b) =>
+        (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
+      )
+    : []
 
   return (
-    <div
-      className="h-full z-50"
-      onMouseEnter={openAndCancel}
-      onMouseLeave={close}
-    >
-      <Popover className="relative h-full">
-        <PopoverButton className="h-full">
-          <LocalizedClientLink
-            className="hover:text-ui-fg-base"
-            href="/cart"
-            data-testid="nav-cart-link"
-          >{`Cart (${totalItems})`}</LocalizedClientLink>
-        </PopoverButton>
-        <Transition
-          show={cartDropdownOpen}
-          as={Fragment}
-          enter="transition ease-out duration-200"
-          enterFrom="opacity-0 translate-y-1"
-          enterTo="opacity-100 translate-y-0"
-          leave="transition ease-in duration-150"
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-1"
-        >
-          <PopoverPanel
-            static
-            className="hidden small:block absolute top-[calc(100%+1px)] right-0 bg-white border-x border-b border-gray-200 w-[420px] text-ui-fg-base"
-            data-testid="nav-cart-dropdown"
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-creata-ink bg-creata-yellow text-creata-ink font-mono text-xs font-bold uppercase shadow-zine hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#111111] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[1px_1px_0_#111111] transition-all duration-150"
+        aria-label={`Open print bag (${totalItems} items)`}
+        data-testid="nav-cart-link"
+      >
+        <span>CART</span>
+        <span>[{totalItems}]</span>
+      </button>
+
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-[80]" onClose={close}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            <div className="p-4 flex items-center justify-center">
-              <h3 className="text-large-semi">Cart</h3>
-            </div>
-            {cartState && cartState.items?.length ? (
-              <>
-                <div className="overflow-y-scroll max-h-[402px] px-4 grid grid-cols-1 gap-y-8 no-scrollbar p-px">
-                  {cartState.items
-                    .sort((a, b) => {
-                      return (a.created_at ?? "") > (b.created_at ?? "")
-                        ? -1
-                        : 1
-                    })
-                    .map((item) => (
-                      <div
-                        className="grid grid-cols-[122px_1fr] gap-x-4"
-                        key={item.id}
-                        data-testid="cart-item"
-                      >
-                        <LocalizedClientLink
-                          href={`/products/${item.product_handle}`}
-                          className="w-24"
-                        >
-                          <Thumbnail
-                            thumbnail={item.thumbnail}
-                            images={item.variant?.product?.images}
-                            size="square"
+            <div className="fixed inset-0 bg-creata-ink/45" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
+              <Transition.Child
+                as={Fragment}
+                enter="transform transition ease-out duration-250"
+                enterFrom="translate-x-full"
+                enterTo="translate-x-0"
+                leave="transform transition ease-in duration-200"
+                leaveFrom="translate-x-0"
+                leaveTo="translate-x-full"
+              >
+                <Dialog.Panel
+                  className="pointer-events-auto w-screen max-w-[430px] flex flex-col bg-creata-cream border-l-2 border-creata-ink"
+                  data-testid="nav-cart-dropdown"
+                >
+                  <div className="px-5 py-4 bg-creata-yellow border-b-2 border-creata-ink flex items-center justify-between">
+                    <div>
+                      <span className="block font-mono text-[10px] font-bold uppercase tracking-widest text-creata-ink">
+                        CREATA 3D // {totalItems}{" "}
+                        {totalItems === 1 ? "ITEM" : "ITEMS"}
+                      </span>
+                      <Dialog.Title className="font-display font-extrabold text-xl uppercase text-creata-ink">
+                        Print Bag
+                      </Dialog.Title>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={close}
+                      aria-label="Close bag"
+                      className="w-9 h-9 border-2 border-creata-ink bg-white shadow-zine-sm hover:bg-creata-mint flex items-center justify-center text-creata-ink transition-colors"
+                    >
+                      <XMark />
+                    </button>
+                  </div>
+
+                  {cartState && sortedItems.length > 0 ? (
+                    <>
+                      <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3.5">
+                        {sortedItems.map((item) => (
+                          <CartDrawerItem
+                            key={item.id}
+                            item={item}
+                            currencyCode={cartState.currency_code}
+                            onNavigate={close}
+                            onMutated={() => {
+                              notifyCartUpdated()
+                              router.refresh()
+                            }}
                           />
-                        </LocalizedClientLink>
-                        <div className="flex flex-col justify-between flex-1">
-                          <div className="flex flex-col flex-1">
-                            <div className="flex items-start justify-between">
-                              <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4 w-[180px]">
-                                <h3 className="text-base-regular overflow-hidden text-ellipsis">
-                                  <LocalizedClientLink
-                                    href={`/products/${item.product_handle}`}
-                                    data-testid="product-link"
-                                  >
-                                    {item.title}
-                                  </LocalizedClientLink>
-                                </h3>
-                                <LineItemOptions
-                                  variant={item.variant}
-                                  data-testid="cart-item-variant"
-                                  data-value={item.variant}
-                                />
-                                <span
-                                  data-testid="cart-item-quantity"
-                                  data-value={item.quantity}
-                                >
-                                  Quantity: {item.quantity}
-                                </span>
-                              </div>
-                              <div className="flex justify-end">
-                                <LineItemPrice
-                                  item={item}
-                                  style="tight"
-                                  currencyCode={cartState.currency_code}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <DeleteButton
-                            id={item.id}
-                            className="mt-1"
-                            data-testid="cart-item-remove-button"
+                        ))}
+                      </div>
+
+                      <div className="px-5 py-5 bg-white border-t-2 border-dashed border-creata-ink flex flex-col gap-3.5">
+                        <div className="flex items-baseline justify-between font-mono">
+                          <span className="text-xs font-bold uppercase text-creata-muted">
+                            SUBTOTAL
+                          </span>
+                          <span
+                            className="text-xl font-bold text-creata-ink"
+                            data-testid="cart-subtotal"
+                            data-value={subtotal}
                           >
-                            Remove
-                          </DeleteButton>
+                            {convertToLocale({
+                              amount: subtotal,
+                              currency_code: cartState.currency_code,
+                            })}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <LocalizedClientLink
+                            href="/cart"
+                            onClick={close}
+                            className="h-12 px-4 border-2 border-creata-ink bg-white hover:bg-creata-yellow text-creata-ink font-mono text-xs font-bold uppercase shadow-zine-sm inline-flex items-center justify-center transition-all"
+                            data-testid="go-to-cart-button"
+                          >
+                            View Bag
+                          </LocalizedClientLink>
+                          <LocalizedClientLink
+                            href="/checkout"
+                            onClick={close}
+                            className="h-12 px-4 border-2 border-creata-ink bg-creata-coral text-creata-ink font-mono text-xs font-bold uppercase shadow-zine hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#111111] inline-flex items-center justify-between transition-all"
+                          >
+                            <span>Checkout</span>
+                            <span aria-hidden="true">→</span>
+                          </LocalizedClientLink>
                         </div>
                       </div>
-                    ))}
-                </div>
-                <div className="p-4 flex flex-col gap-y-4 text-small-regular">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-fg-base font-semibold">
-                      Subtotal{" "}
-                      <span className="font-normal">(excl. taxes)</span>
-                    </span>
-                    <span
-                      className="text-large-semi"
-                      data-testid="cart-subtotal"
-                      data-value={subtotal}
-                    >
-                      {convertToLocale({
-                        amount: subtotal,
-                        currency_code: cartState.currency_code,
-                      })}
-                    </span>
-                  </div>
-                  <LocalizedClientLink href="/cart" passHref>
-                    <Button
-                      className="w-full"
-                      size="large"
-                      data-testid="go-to-cart-button"
-                    >
-                      Go to cart
-                    </Button>
-                  </LocalizedClientLink>
-                </div>
-              </>
-            ) : (
-              <div>
-                <div className="flex py-16 flex-col gap-y-4 items-center justify-center">
-                  <div className="bg-gray-900 text-small-regular flex items-center justify-center w-6 h-6 rounded-full text-white">
-                    <span>0</span>
-                  </div>
-                  <span>Your shopping bag is empty.</span>
-                  <div>
-                    <LocalizedClientLink href="/store">
-                      <>
-                        <span className="sr-only">Go to all products page</span>
-                        <Button onClick={close}>Explore products</Button>
-                      </>
-                    </LocalizedClientLink>
-                  </div>
-                </div>
-              </div>
-            )}
-          </PopoverPanel>
-        </Transition>
-      </Popover>
-    </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center px-8 py-16 gap-4">
+                      <div className="w-12 h-12 border-2 border-creata-ink bg-creata-yellow shadow-zine-sm grid place-items-center font-mono text-sm font-bold text-creata-ink">
+                        0
+                      </div>
+                      <div>
+                        <p className="font-display font-extrabold text-xl uppercase text-creata-ink">
+                          Bag is empty.
+                        </p>
+                        <p className="text-sm text-creata-muted mt-1">
+                          Add an object or stamp a custom name in the Print Lab.
+                        </p>
+                      </div>
+                      <LocalizedClientLink
+                        href="/store"
+                        onClick={close}
+                        className="mt-2 px-6 py-3 border-2 border-creata-ink bg-creata-coral text-creata-ink font-mono text-xs font-bold uppercase shadow-zine hover:-translate-x-0.5 hover:-translate-y-0.5 inline-flex items-center gap-2 transition-all"
+                      >
+                        <span>Explore Objects</span>
+                        <span aria-hidden="true">↗</span>
+                      </LocalizedClientLink>
+                    </div>
+                  )}
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
   )
 }
 

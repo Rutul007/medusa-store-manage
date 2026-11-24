@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import ProductActions from "@modules/products/components/product-actions"
 import VariantImageGallery from "@modules/products/components/image-gallery/variant-image-gallery"
+import ProductActions from "@modules/products/components/product-actions"
 import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
@@ -25,74 +25,118 @@ const ProductTemplate = ({
   }
 
   return (
-    <div className="product-page" data-testid="product-container">
-      <div className="product-page__container">
-        <nav className="product-breadcrumbs" aria-label="Breadcrumb">
-          <LocalizedClientLink href="/store">All objects</LocalizedClientLink>
+    <div className="text-creata-ink" data-testid="product-container">
+      <div className="content-container pb-20">
+        <nav
+          className="py-5 flex items-center gap-2.5 overflow-hidden font-mono text-xs font-bold uppercase text-creata-muted whitespace-nowrap"
+          aria-label="Breadcrumb"
+        >
+          <LocalizedClientLink
+            href="/store"
+            className="hover:text-creata-ink hover:underline transition-colors"
+          >
+            All Objects
+          </LocalizedClientLink>
           <span aria-hidden="true">/</span>
           {product.collection ? (
-            <LocalizedClientLink href={`/collections/${product.collection.handle}`}>
+            <LocalizedClientLink
+              href={`/collections/${product.collection.handle}`}
+              className="hover:text-creata-ink hover:underline transition-colors"
+            >
               {product.collection.title}
             </LocalizedClientLink>
           ) : (
-            <span>CREATA objects</span>
+            <span>CREATA 3D</span>
           )}
           <span aria-hidden="true">/</span>
-          <span className="product-breadcrumbs__current">{product.title}</span>
+          <span className="truncate text-creata-ink">{product.title}</span>
         </nav>
 
-        <section className="product-layout" aria-label={product.title}>
-          <div className="product-layout__gallery">
+        <section
+          className="grid grid-cols-1 small:grid-cols-[1.12fr_0.88fr] gap-8 sm:gap-10 medium:gap-14 items-start"
+          aria-label={product.title}
+        >
+          <div className="min-w-0 small:sticky small:top-24">
             <VariantImageGallery product={product} />
-            <div className="product-gallery-note">
-              <span>FORM, FUNCTION, A LITTLE CHARACTER.</span>
-              <span>CREATA 3D / OBJECTS FOR EVERYDAY</span>
+            <div className="mt-3 flex items-center justify-between gap-3 px-1 font-mono text-[11px] font-bold uppercase tracking-wider text-creata-muted">
+              <span>STUDIO PROOF // OBJECT STUDY</span>
+              <span>LAYER BY LAYER</span>
             </div>
           </div>
 
-          <div className="product-layout__details">
-            <div className="product-detail-heading">
-              <p className="eyebrow">{product.collection?.title || "THE CREATA OBJECTS"}</p>
+          <div className="min-w-0 small:sticky small:top-24 flex flex-col gap-6">
+            <div>
+              <span className="zine-sticker bg-creata-lilac px-3 py-1 font-mono text-[10px] font-bold uppercase text-creata-ink -rotate-1">
+                {product.collection?.title || "CREATA OBJECT"}
+              </span>
               <ProductInfo product={product} />
             </div>
 
-            <div className="product-detail-promise">
-              <span className="product-detail-promise__mark" aria-hidden="true">+</span>
-              <span>Designed with curiosity. Made to live with.</span>
+            <div className="flex items-center gap-2.5 py-3 border-y-2 border-dashed border-creata-ink font-mono text-xs font-bold uppercase text-creata-ink">
+              <span aria-hidden="true">◆</span>
+              <span>Designed with curiosity. Extruded to keep.</span>
             </div>
 
-            <div className="product-actions">
-              <ProductActions product={product} region={region} />
-            </div>
+            <ProductActions product={product} region={region} />
 
-            <div className="product-service-links">
-              <LocalizedClientLink href="/shipping">Shipping information <span aria-hidden="true">↗</span></LocalizedClientLink>
-              <LocalizedClientLink href="/returns">Returns & exchanges <span aria-hidden="true">↗</span></LocalizedClientLink>
+            <div className="grid grid-cols-2 gap-3">
+              <LocalizedClientLink
+                href="/shipping"
+                className="flex items-center justify-between px-4 py-3 border-2 border-creata-ink bg-white hover:bg-creata-yellow shadow-zine-sm font-mono text-xs font-bold uppercase text-creata-ink transition-colors"
+              >
+                <span>Shipping Info</span>
+                <span aria-hidden="true">↗</span>
+              </LocalizedClientLink>
+              <LocalizedClientLink
+                href="/returns"
+                className="flex items-center justify-between px-4 py-3 border-2 border-creata-ink bg-white hover:bg-creata-yellow shadow-zine-sm font-mono text-xs font-bold uppercase text-creata-ink transition-colors"
+              >
+                <span>Returns Policy</span>
+                <span aria-hidden="true">↗</span>
+              </LocalizedClientLink>
             </div>
 
             <ProductTabs product={product} />
           </div>
         </section>
 
-        <section className="product-story" aria-label="About CREATA 3D">
-          <div className="product-story__eyebrow">A NOTE FROM THE STUDIO <span>01 — 03</span></div>
-          <div className="product-story__content">
-            <h2>Objects with a little more <em>intention.</em></h2>
-            <p>
-              CREATA 3D brings digital ideas into the everyday. We make considered pieces
-              with shape, texture, and a point of view—designed to find their place in your space.
-            </p>
+        <section
+          className="mt-16 sm:mt-20 border-2 border-creata-ink bg-creata-ink text-creata-yellow shadow-zine-lg p-8 sm:p-12 grid grid-cols-1 small:grid-cols-[1.15fr_0.85fr] gap-6 items-end"
+          aria-label="About CREATA 3D"
+        >
+          <div>
+            <span className="inline-block px-3 py-1 bg-creata-mint text-creata-ink border-2 border-creata-ink font-mono text-[11px] font-bold uppercase -rotate-1">
+              Note From The Studio
+            </span>
+            <h2 className="mt-4 font-display font-extrabold uppercase text-3xl sm:text-5xl tracking-tight leading-[1] text-white">
+              Objects with a little more{" "}
+              <span className="text-creata-yellow">intention.</span>
+            </h2>
           </div>
+          <p className="text-sm sm:text-base leading-relaxed text-white/80 max-w-[420px]">
+            CREATA 3D turns digital ideas into bold everyday pieces—honest layer lines, tactile surfaces, and room for your own character.
+          </p>
         </section>
 
-        <section className="product-related" data-testid="related-products-container">
-          <div className="product-related__heading">
+        <section
+          className="pt-16 sm:pt-20"
+          data-testid="related-products-container"
+        >
+          <div className="mb-8 pb-4 border-b-2 border-creata-ink flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="eyebrow">KEEP EXPLORING</p>
-              <h2>More objects to live with.</h2>
+              <span className="zine-sticker bg-creata-yellow px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase text-creata-ink -rotate-1">
+                Keep Exploring
+              </span>
+              <h2 className="mt-2 font-display font-extrabold uppercase text-3xl sm:text-4xl tracking-tight text-creata-ink">
+                More Studio Objects
+              </h2>
             </div>
-            <LocalizedClientLink href="/store" className="text-link">
-              Shop all objects <span aria-hidden="true">↗</span>
+            <LocalizedClientLink
+              href="/store"
+              className="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-creata-ink bg-white hover:bg-creata-mint shadow-zine-sm font-mono text-xs font-bold uppercase text-creata-ink transition-colors"
+            >
+              <span>Shop all objects</span>
+              <span aria-hidden="true">↗</span>
             </LocalizedClientLink>
           </div>
           <Suspense fallback={<SkeletonRelatedProducts />}>

@@ -34,18 +34,23 @@ const HitPrice = ({ hit, currencyCode }: HitPriceProps) => {
   const isRange = max > min_price
 
   return (
-    <div className="flex items-center gap-x-2" data-testid="product-price">
+    <div
+      className="inline-flex items-baseline gap-x-1.5 px-2 py-0.5 bg-creata-yellow border-[1.5px] border-creata-ink font-mono text-xs font-bold text-creata-ink"
+      data-testid="product-price"
+    >
       {!isRange && on_sale && original_price !== null && (
         <Text
-          className="line-through text-ui-fg-muted"
+          as="span"
+          className="line-through text-[11px] font-normal text-creata-muted"
           data-testid="original-price"
         >
           {format(original_price)}
         </Text>
       )}
       <Text
-        className={clx("text-ui-fg-muted", {
-          "text-ui-tag-red-text": on_sale,
+        as="span"
+        className={clx("font-mono text-xs font-bold text-creata-ink", {
+          "text-creata-coral": on_sale,
         })}
         data-testid="price"
       >

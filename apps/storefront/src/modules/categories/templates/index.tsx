@@ -1,14 +1,13 @@
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
-import InteractiveLink from "@modules/common/components/interactive-link"
+import { HttpTypes } from "@medusajs/types"
+import { OptionValueIds } from "@lib/util/product-option-filters"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import PaginatedProducts from "@modules/store/templates/paginated-products"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { HttpTypes } from "@medusajs/types"
-import { OptionValueIds } from "@lib/util/product-option-filters"
 
 export default function CategoryTemplate({
   category,
@@ -30,10 +29,10 @@ export default function CategoryTemplate({
 
   const parents = [] as HttpTypes.StoreProductCategory[]
 
-  const getParents = (category: HttpTypes.StoreProductCategory) => {
-    if (category.parent_category) {
-      parents.push(category.parent_category)
-      getParents(category.parent_category)
+  const getParents = (cat: HttpTypes.StoreProductCategory) => {
+    if (cat.parent_category) {
+      parents.push(cat.parent_category)
+      getParents(cat.parent_category)
     }
   }
 
@@ -41,64 +40,81 @@ export default function CategoryTemplate({
 
   return (
     <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
+      className="py-10 sm:py-14 content-container"
       data-testid="category-container"
     >
-      <RefinementList
-        sortBy={sort}
-        data-testid="sort-by-container"
-        hideOptionsPicker
-      />
-      <div className="w-full">
-        <div className="flex flex-row mb-8 text-2xl-semi gap-4">
-          {parents &&
-            parents.map((parent) => (
-              <span key={parent.id} className="text-ui-fg-subtle">
-                <LocalizedClientLink
-                  className="mr-4 hover:text-black"
-                  href={`/categories/${parent.handle}`}
-                  data-testid="sort-by-link"
-                >
-                  {parent.name}
-                </LocalizedClientLink>
-                /
-              </span>
-            ))}
-          <h1 data-testid="category-page-title">{category.name}</h1>
+      <div className="mb-8 border-b-2 border-creata-ink pb-5">
+        <span className="zine-sticker bg-creata-mint px-3 py-1 font-mono text-[11px] font-bold uppercase text-creata-ink -rotate-1">
+          Category // CREATA 3D
+        </span>
+        <div className="mt-3 flex flex-wrap items-baseline gap-3">
+          {parents.map((parent) => (
+            <span
+              key={parent.id}
+              className="font-display font-extrabold uppercase text-2xl sm:text-4xl text-creata-muted flex items-center gap-3"
+            >
+              <LocalizedClientLink
+                className="hover:text-creata-ink transition-colors"
+                href={`/categories/${parent.handle}`}
+                data-testid="sort-by-link"
+              >
+                {parent.name}
+              </LocalizedClientLink>
+              <span aria-hidden="true">/</span>
+            </span>
+          ))}
+          <h1
+            className="font-display font-extrabold uppercase text-4xl sm:text-5xl tracking-tight text-creata-ink leading-none"
+            data-testid="category-page-title"
+          >
+            {category.name}
+          </h1>
         </div>
         {category.description && (
-          <div className="mb-8 text-base-regular">
-            <p>{category.description}</p>
-          </div>
+          <p className="mt-3 max-w-2xl text-base text-creata-muted">
+            {category.description}
+          </p>
         )}
-        {category.category_children && (
-          <div className="mb-8 text-base-large">
-            <ul className="grid grid-cols-1 gap-2">
-              {category.category_children?.map((c) => (
-                <li key={c.id}>
-                  <InteractiveLink href={`/categories/${c.handle}`}>
-                    {c.name}
-                  </InteractiveLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {category.category_children && category.category_children.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {category.category_children.map((c) => (
+              <li key={c.id}>
+                <LocalizedClientLink
+                  href={`/categories/${c.handle}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 border-[1.5px] border-creata-ink bg-white hover:bg-creata-yellow shadow-zine-sm font-mono text-xs font-bold uppercase text-creata-ink transition-colors"
+                >
+                  <span>{c.name}</span>
+                  <span aria-hidden="true">↗</span>
+                </LocalizedClientLink>
+              </li>
+            ))}
+          </ul>
         )}
-        <Suspense
-          fallback={
-            <SkeletonProductGrid
-              numberOfProducts={category.products?.length ?? 8}
+      </div>
+
+      <div className="flex flex-col small:flex-row small:items-start gap-7">
+        <RefinementList
+          sortBy={sort}
+          data-testid="sort-by-container"
+          hideOptionsPicker
+        />
+        <div className="w-full min-w-0">
+          <Suspense
+            fallback={
+              <SkeletonProductGrid
+                numberOfProducts={category.products?.length ?? 8}
+              />
+            }
+          >
+            <PaginatedProducts
+              sortBy={sort}
+              page={pageNumber}
+              categoryId={category.id}
+              countryCode={countryCode}
+              optionValueIds={optionValueIds}
             />
-          }
-        >
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            categoryId={category.id}
-            countryCode={countryCode}
-            optionValueIds={optionValueIds}
-          />
-        </Suspense>
+          </Suspense>
+        </div>
       </div>
     </div>
   )

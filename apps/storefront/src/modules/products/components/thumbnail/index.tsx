@@ -1,8 +1,7 @@
-import { Container, clx } from "@modules/common/components/ui"
+import { ObjectPlaceholderSvg } from "@modules/common/components/brand-mark"
+import { clx } from "@modules/common/components/ui"
 import Image from "next/image"
 import React from "react"
-
-import PlaceholderImage from "@modules/common/icons/placeholder-image"
 
 type ThumbnailProps = {
   thumbnail?: string | null
@@ -26,10 +25,9 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   const initialImage = thumbnail || images?.[0]?.url
 
   return (
-    <Container
+    <div
       className={clx(
-        "relative w-full overflow-hidden p-4 bg-ui-bg-subtle shadow-elevation-card-rest rounded-large group-hover:shadow-elevation-card-hover transition-shadow ease-in-out duration-150",
-        className,
+        "relative w-full overflow-hidden bg-transparent",
         {
           "aspect-[11/14]": isFeatured,
           "aspect-[9/16]": !isFeatured && size !== "square",
@@ -38,12 +36,13 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
           "w-[290px]": size === "medium",
           "w-[440px]": size === "large",
           "w-full": size === "full",
-        }
+        },
+        className
       )}
       data-testid={dataTestid}
     >
       <ImageOrPlaceholder image={initialImage} size={size} alt={alt} />
-    </Container>
+    </div>
   )
 }
 
@@ -56,15 +55,17 @@ const ImageOrPlaceholder = ({
     <Image
       src={image}
       alt={alt ?? ""}
-      className="absolute inset-0 object-cover object-center"
+      className="absolute inset-0 object-cover object-center transition-transform duration-300 ease-out group-hover:scale-[1.04]"
       draggable={false}
-      quality={50}
+      quality={65}
       sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
       fill
     />
   ) : (
-    <div className="w-full h-full absolute inset-0 flex items-center justify-center">
-      <PlaceholderImage size={size === "small" ? 16 : 24} />
+    <div className="w-full h-full absolute inset-0 flex items-center justify-center p-4">
+      <ObjectPlaceholderSvg
+        className={size === "small" ? "w-14 h-14" : "w-3/5 h-3/5 max-w-[140px]"}
+      />
     </div>
   )
 }

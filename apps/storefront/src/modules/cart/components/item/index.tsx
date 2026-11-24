@@ -27,11 +27,14 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const [error, setError] = useState<string | null>(null)
   const isPreview = type === "preview"
   const rawPersonalization = item.metadata?.[PERSONALIZATION_METADATA_KEY]
-  const personalization = rawPersonalization && typeof rawPersonalization === "object"
-    ? rawPersonalization as PersonalizationValue
-    : null
+  const personalization =
+    rawPersonalization && typeof rawPersonalization === "object"
+      ? (rawPersonalization as PersonalizationValue)
+      : null
   const [editingPersonalization, setEditingPersonalization] = useState(false)
-  const [personalizationDraft, setPersonalizationDraft] = useState(personalization?.answer ?? "")
+  const [personalizationDraft, setPersonalizationDraft] = useState(
+    personalization?.answer ?? ""
+  )
 
   const changeQuantity = async (quantity: number) => {
     if (quantity < 1 || quantity === item.quantity || updating) {
@@ -77,7 +80,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       return
     }
     if (answer.length > personalization.maxLength) {
-      setError(`Keep your answer to ${personalization.maxLength} characters or fewer.`)
+      setError(
+        `Keep your answer to ${personalization.maxLength} characters or fewer.`
+      )
       return
     }
 
@@ -98,7 +103,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       notifyCartUpdated()
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not update personalization")
+      setError(
+        err instanceof Error ? err.message : "Could not update personalization"
+      )
     } finally {
       setUpdating(false)
     }
@@ -106,13 +113,17 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
 
   return (
     <article
-      className={`cart-line-item${isPreview ? " cart-line-item--preview" : ""}`}
+      className={`border-2 border-creata-ink bg-white grid transition-opacity ${
+        isPreview
+          ? "grid-cols-[64px_minmax(0,1fr)] gap-3 p-3 shadow-zine-sm"
+          : "grid-cols-[88px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-4 sm:gap-5 p-4 sm:p-5 shadow-zine"
+      } ${updating ? "opacity-60" : ""}`}
       data-testid="product-row"
       aria-busy={updating}
     >
       <LocalizedClientLink
         href={`/products/${item.product_handle}`}
-        className="cart-line-item__image"
+        className="group block w-full self-start border-[1.5px] border-creata-ink overflow-hidden bg-creata-yellow-soft"
         aria-label={`View ${item.product_title}`}
       >
         <Thumbnail
@@ -120,33 +131,43 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
           images={item.variant?.product?.images}
           alt={item.product_title}
           size="square"
-          className="cart-line-item__thumbnail"
+          className="h-full w-full"
         />
       </LocalizedClientLink>
 
-      <div className="cart-line-item__main">
-        <div className="cart-line-item__top">
-          <div className="cart-line-item__description">
+      <div className="min-w-0 flex flex-col justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex flex-col items-start gap-1.5">
             <LocalizedClientLink
               href={`/products/${item.product_handle}`}
-              className="cart-line-item__title"
+              className={`font-display font-extrabold text-creata-ink hover:text-creata-coral transition-colors leading-snug ${
+                isPreview ? "text-sm" : "text-base sm:text-lg"
+              }`}
               data-testid="product-title"
             >
               {item.product_title}
             </LocalizedClientLink>
+
             {item.variant && item.variant.title !== "Default variant" && (
-              <LineItemOptions
-                variant={item.variant}
-                data-testid="product-variant"
-              />
+              <div className="font-mono text-xs text-creata-muted">
+                <LineItemOptions
+                  variant={item.variant}
+                  data-testid="product-variant"
+                />
+              </div>
             )}
+
             {personalization && !editingPersonalization && (
-              <div className="cart-personalization">
-                <span className="cart-personalization__question">{personalization.question}</span>
-                <span className="cart-personalization__answer">{personalization.answer || "No text added"}</span>
+              <div className="mt-1 w-full bg-creata-yellow border-[1.5px] border-creata-ink px-3 py-2 flex flex-col items-start gap-1">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-creata-ink">
+                  STAMP // {personalization.question}
+                </span>
+                <span className="font-mono text-xs font-bold text-creata-ink break-words">
+                  &ldquo;{personalization.answer || "No text added"}&rdquo;
+                </span>
                 {!isPreview && (
                   <button
-                    className="cart-line-item__remove"
+                    className="font-mono text-[11px] font-bold uppercase underline underline-offset-2 text-creata-ink hover:text-creata-coral mt-0.5"
                     type="button"
                     onClick={() => {
                       setPersonalizationDraft(personalization.answer)
@@ -154,28 +175,39 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
                     }}
                     disabled={updating}
                   >
-                    Edit text
+                    EDIT TEXT
                   </button>
                 )}
               </div>
             )}
+
             {personalization && editingPersonalization && !isPreview && (
-              <div className="cart-personalization cart-personalization--editing">
-                <label className="cart-personalization__question" htmlFor={`personalization-${item.id}`}>
-                  {personalization.question}
+              <div className="mt-1 w-full bg-creata-yellow-soft border-[1.5px] border-creata-ink p-3 flex flex-col gap-2">
+                <label
+                  className="font-mono text-[10px] font-bold uppercase tracking-wider text-creata-ink"
+                  htmlFor={`personalization-${item.id}`}
+                >
+                  STAMP // {personalization.question}
                 </label>
                 <input
                   id={`personalization-${item.id}`}
-                  className="cart-personalization__input"
+                  className="w-full h-10 px-3 border-2 border-creata-ink bg-white font-mono text-sm text-creata-ink outline-none focus:bg-creata-yellow-soft"
                   type="text"
                   value={personalizationDraft}
                   maxLength={personalization.maxLength}
-                  onChange={(event) => setPersonalizationDraft(event.target.value)}
+                  onChange={(event) =>
+                    setPersonalizationDraft(event.target.value)
+                  }
                   disabled={updating}
                 />
-                <div className="cart-personalization__actions">
-                  <button type="button" onClick={savePersonalization} disabled={updating}>
-                    {updating ? "Saving" : "Save text"}
+                <div className="flex gap-3 font-mono text-[11px] font-bold uppercase">
+                  <button
+                    type="button"
+                    onClick={savePersonalization}
+                    disabled={updating}
+                    className="px-2.5 py-1 border-[1.5px] border-creata-ink bg-creata-mint text-creata-ink hover:bg-creata-yellow"
+                  >
+                    {updating ? "SAVING..." : "SAVE TEXT"}
                   </button>
                   <button
                     type="button"
@@ -185,45 +217,55 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
                       setError(null)
                     }}
                     disabled={updating}
+                    className="px-2.5 py-1 border-[1.5px] border-creata-ink bg-white text-creata-ink hover:bg-creata-cream"
                   >
-                    Cancel
+                    CANCEL
                   </button>
                 </div>
               </div>
             )}
+
             {isPreview && (
-              <span className="cart-line-item__preview-quantity">
-                Quantity: {item.quantity}
+              <span className="font-mono text-xs text-creata-muted">
+                QTY: {item.quantity}
               </span>
             )}
           </div>
 
           {!isPreview && (
             <button
-              className="cart-line-item__remove"
+              className="shrink-0 font-mono text-[11px] font-bold uppercase text-creata-ink hover:text-creata-coral underline underline-offset-2"
               type="button"
               onClick={removeItem}
               disabled={updating}
               data-testid="product-delete-button"
             >
-              {updating ? "Updating" : "Remove"}
+              {updating ? "UPDATING" : "REMOVE"}
             </button>
           )}
         </div>
 
-        <div className="cart-line-item__bottom">
+        <div className="flex items-end justify-between gap-3 pt-1">
           {!isPreview ? (
-            <div className="cart-quantity" aria-label={`Quantity for ${item.product_title}`}>
+            <div
+              className="inline-flex items-center border-[1.5px] border-creata-ink bg-creata-cream"
+              aria-label={`Quantity for ${item.product_title}`}
+            >
               <button
                 type="button"
                 aria-label={`Decrease ${item.product_title} quantity`}
                 onClick={() => changeQuantity(item.quantity - 1)}
                 disabled={updating || item.quantity <= 1}
+                className="w-8 h-8 border-r-[1.5px] border-creata-ink bg-white hover:bg-creata-yellow font-mono text-sm font-bold text-creata-ink disabled:opacity-35"
                 data-testid="decrease-quantity"
               >
-                −
+                -
               </button>
-              <span aria-live="polite" data-testid="product-quantity">
+              <span
+                className="min-w-[32px] text-center font-mono text-xs font-bold text-creata-ink"
+                aria-live="polite"
+                data-testid="product-quantity"
+              >
                 {item.quantity}
               </span>
               <button
@@ -231,32 +273,43 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
                 aria-label={`Increase ${item.product_title} quantity`}
                 onClick={() => changeQuantity(item.quantity + 1)}
                 disabled={updating}
+                className="w-8 h-8 border-l-[1.5px] border-creata-ink bg-white hover:bg-creata-yellow font-mono text-sm font-bold text-creata-ink disabled:opacity-35"
                 data-testid="increase-quantity"
               >
                 +
               </button>
             </div>
           ) : (
-            <span className="cart-line-item__preview-quantity">{item.quantity} ×</span>
+            <span className="font-mono text-xs text-creata-muted">
+              {item.quantity} ×
+            </span>
           )}
 
-          <div className="cart-line-item__prices">
+          <div className="flex flex-col items-end font-mono">
             {!isPreview && (
-              <LineItemUnitPrice
+              <span className="text-xs text-creata-muted">
+                <LineItemUnitPrice
+                  item={item}
+                  style="tight"
+                  currencyCode={currencyCode}
+                />
+              </span>
+            )}
+            <span className="text-sm font-bold text-creata-ink">
+              <LineItemPrice
                 item={item}
                 style="tight"
                 currencyCode={currencyCode}
               />
-            )}
-            <LineItemPrice
-              item={item}
-              style="tight"
-              currencyCode={currencyCode}
-            />
+            </span>
           </div>
         </div>
 
-        {error && <p className="cart-line-item__error" role="alert">{error}</p>}
+        {error && (
+          <p className="font-mono text-xs font-bold text-creata-coral" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </article>
   )

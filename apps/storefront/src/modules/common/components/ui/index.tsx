@@ -10,12 +10,8 @@ import {
   ThHTMLAttributes,
 } from "react"
 
-// TODO: Add Toaster component back when needed for notifications
-
-// Re-export clsx as clx for compatibility
 export { clsx as clx }
 
-// Text Component
 type TextProps = HTMLAttributes<HTMLParagraphElement> & {
   as?: "p" | "span" | "div"
 }
@@ -23,7 +19,11 @@ type TextProps = HTMLAttributes<HTMLParagraphElement> & {
 export const Text = forwardRef<HTMLParagraphElement, TextProps>(
   ({ className, as: Component = "p", children, ...props }, ref) => {
     return (
-      <Component ref={ref} className={clsx("txt-medium", className)} {...props}>
+      <Component
+        ref={ref}
+        className={clsx("text-sm leading-relaxed text-creata-ink", className)}
+        {...props}
+      >
         {children}
       </Component>
     )
@@ -31,7 +31,6 @@ export const Text = forwardRef<HTMLParagraphElement, TextProps>(
 )
 Text.displayName = "Text"
 
-// Heading Component
 type HeadingProps = HTMLAttributes<HTMLHeadingElement> & {
   level?: "h1" | "h2" | "h3"
 }
@@ -42,7 +41,7 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
       <Component
         ref={ref}
         className={clsx(
-          "font-semibold",
+          "font-display font-extrabold tracking-tight text-creata-ink",
           Component === "h1" && "text-3xl",
           Component === "h2" && "text-2xl",
           Component === "h3" && "text-xl",
@@ -57,7 +56,6 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 )
 Heading.displayName = "Heading"
 
-// Button Component
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "transparent"
   size?: "small" | "medium" | "large"
@@ -82,14 +80,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isLoading}
         className={clsx(
-          "inline-flex gap-2 items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          variant === "primary" && "bg-black text-white hover:bg-gray-800",
+          "inline-flex gap-2 items-center justify-center font-mono font-bold uppercase tracking-wide transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-creata-ink focus-visible:ring-offset-2 focus-visible:ring-offset-creata-cream disabled:pointer-events-none disabled:opacity-50",
+          variant === "primary" &&
+            "bg-creata-coral text-creata-ink border-2 border-creata-ink shadow-zine hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#111111] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[1px_1px_0_#111111]",
           variant === "secondary" &&
-            "bg-white text-black border border-gray-200 hover:bg-gray-50",
-          variant === "transparent" && "bg-transparent hover:bg-gray-100",
-          size === "small" && "h-8 px-3 text-sm",
-          size === "medium" && "h-10 px-4",
-          size === "large" && "h-12 px-6 text-lg",
+            "bg-white text-creata-ink border-2 border-creata-ink shadow-zine-sm hover:bg-creata-yellow hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-zine active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+          variant === "transparent" &&
+            "bg-transparent text-creata-ink border-2 border-transparent hover:border-creata-ink hover:bg-creata-yellow",
+          size === "small" && "h-9 px-3.5 text-xs",
+          size === "medium" && "h-11 px-5 text-xs",
+          size === "large" && "h-12 px-6 text-xs sm:text-sm",
           className
         )}
         {...props}
@@ -101,7 +101,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-// Container Component
 type ContainerProps = HTMLAttributes<HTMLDivElement>
 
 export const Container = forwardRef<HTMLDivElement, ContainerProps>(
@@ -109,7 +108,10 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
     return (
       <div
         ref={ref}
-        className={clsx("bg-white rounded-lg p-4", className)}
+        className={clsx(
+          "bg-white border-2 border-creata-ink shadow-zine p-5",
+          className
+        )}
         {...props}
       >
         {children}
@@ -119,7 +121,6 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
 )
 Container.displayName = "Container"
 
-// Badge Component
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   color?: "green" | "red" | "blue" | "orange" | "grey" | "purple"
 }
@@ -130,13 +131,13 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       <span
         ref={ref}
         className={clsx(
-          "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
-          color === "green" && "bg-green-100 text-green-700",
-          color === "red" && "bg-red-100 text-red-700",
-          color === "blue" && "bg-blue-100 text-blue-700",
-          color === "orange" && "bg-orange-100 text-orange-700",
-          color === "grey" && "bg-gray-100 text-gray-700",
-          color === "purple" && "bg-purple-100 text-purple-700",
+          "inline-flex items-center px-2.5 py-0.5 border-[1.5px] border-creata-ink shadow-zine-sm font-mono text-[11px] font-bold uppercase tracking-wide",
+          color === "green" && "bg-creata-mint text-creata-ink",
+          color === "red" && "bg-creata-coral text-white",
+          color === "blue" && "bg-creata-lilac text-creata-ink",
+          color === "orange" && "bg-creata-yellow text-creata-ink",
+          color === "grey" && "bg-creata-surface text-creata-ink",
+          color === "purple" && "bg-creata-lilac text-creata-ink",
           className
         )}
         {...props}
@@ -148,7 +149,6 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
 )
 Badge.displayName = "Badge"
 
-// IconBadge Component
 type IconBadgeProps = HTMLAttributes<HTMLSpanElement>
 
 export const IconBadge = forwardRef<HTMLSpanElement, IconBadgeProps>(
@@ -157,7 +157,7 @@ export const IconBadge = forwardRef<HTMLSpanElement, IconBadgeProps>(
       <span
         ref={ref}
         className={clsx(
-          "inline-flex items-center justify-center rounded-full bg-gray-100 p-1",
+          "inline-flex items-center justify-center bg-creata-yellow border-[1.5px] border-creata-ink p-1.5 text-creata-ink",
           className
         )}
         {...props}
@@ -169,7 +169,6 @@ export const IconBadge = forwardRef<HTMLSpanElement, IconBadgeProps>(
 )
 IconBadge.displayName = "IconBadge"
 
-// IconButton Component
 type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -178,7 +177,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         ref={ref}
         className={clsx(
-          "inline-flex items-center justify-center rounded-md p-2 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2",
+          "inline-flex items-center justify-center border-2 border-creata-ink bg-white p-2 text-creata-ink shadow-zine-sm hover:bg-creata-yellow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-creata-ink",
           className
         )}
         {...props}
@@ -190,7 +189,6 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 )
 IconButton.displayName = "IconButton"
 
-// Label Component
 type LabelProps = LabelHTMLAttributes<HTMLLabelElement>
 
 export const Label = forwardRef<HTMLLabelElement, LabelProps>(
@@ -198,7 +196,10 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
     return (
       <label
         ref={ref}
-        className={clsx("text-sm font-medium", className)}
+        className={clsx(
+          "font-mono text-xs font-bold uppercase tracking-wide text-creata-ink",
+          className
+        )}
         {...props}
       >
         {children}
@@ -208,7 +209,6 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
 )
 Label.displayName = "Label"
 
-// Input Component
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string
 }
@@ -216,12 +216,12 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {label && <Label>{label}</Label>}
         <input
           ref={ref}
           className={clsx(
-            "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "flex h-11 w-full border-2 border-creata-ink bg-creata-cream px-3.5 py-2 text-sm font-medium text-creata-ink shadow-zine-sm placeholder:text-creata-muted focus:bg-creata-yellow/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
             className
           )}
           {...props}
@@ -232,7 +232,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 )
 Input.displayName = "Input"
 
-// Table Components
 type TableProps = TableHTMLAttributes<HTMLTableElement>
 
 const TableRoot = forwardRef<HTMLTableElement, TableProps>(
@@ -240,7 +239,7 @@ const TableRoot = forwardRef<HTMLTableElement, TableProps>(
     return (
       <table
         ref={ref}
-        className={clsx("w-full caption-bottom text-sm", className)}
+        className={clsx("w-full caption-bottom text-sm text-creata-ink", className)}
         {...props}
       >
         {children}
@@ -257,7 +256,7 @@ const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
     return (
       <thead
         ref={ref}
-        className={clsx("[&_tr]:border-b", className)}
+        className={clsx("[&_tr]:border-b-2 [&_tr]:border-creata-ink", className)}
         {...props}
       >
         {children}
@@ -292,7 +291,7 @@ const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
       <tr
         ref={ref}
         className={clsx(
-          "border-b transition-colors hover:bg-gray-50",
+          "border-b border-dashed border-creata-ink transition-colors hover:bg-creata-cream",
           className
         )}
         {...props}
@@ -312,7 +311,7 @@ const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
       <th
         ref={ref}
         className={clsx(
-          "h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0",
+          "h-12 px-4 text-left align-middle font-mono text-xs font-bold uppercase tracking-wider text-creata-ink [&:has([role=checkbox])]:pr-0",
           className
         )}
         {...props}
@@ -332,7 +331,7 @@ const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
       <td
         ref={ref}
         className={clsx(
-          "p-4 align-middle [&:has([role=checkbox])]:pr-0",
+          "p-4 align-middle text-creata-ink [&:has([role=checkbox])]:pr-0",
           className
         )}
         {...props}
@@ -353,7 +352,6 @@ export const Table = Object.assign(TableRoot, {
   Cell: TableCell,
 })
 
-// RadioGroup Components
 type RadioGroupProps = HTMLAttributes<HTMLDivElement>
 
 const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupProps>(
@@ -384,7 +382,7 @@ const RadioGroupItem = forwardRef<HTMLInputElement, RadioGroupItemProps>(
           type="radio"
           id={id}
           className={clsx(
-            "h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900",
+            "h-4 w-4 border-2 border-creata-ink text-creata-ink focus:ring-creata-ink accent-creata-ink",
             className
           )}
           {...props}
@@ -400,7 +398,6 @@ export const RadioGroup = Object.assign(RadioGroupRoot, {
   Item: RadioGroupItem,
 })
 
-// Checkbox Component
 type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
   label?: string
 }
@@ -414,7 +411,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           id={id}
           className={clsx(
-            "h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900",
+            "h-4 w-4 border-2 border-creata-ink text-creata-ink focus:ring-creata-ink accent-creata-ink",
             className
           )}
           {...props}

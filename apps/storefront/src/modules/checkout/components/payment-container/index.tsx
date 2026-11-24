@@ -26,6 +26,7 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
   children,
 }) => {
   const isDevelopment = process.env.NODE_ENV === "development"
+  const isSelected = selectedPaymentOptionId === paymentProviderId
 
   return (
     <RadioGroupOption
@@ -33,29 +34,29 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
       value={paymentProviderId}
       disabled={disabled}
       className={clx(
-        "flex flex-col gap-y-2 text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
+        "flex flex-col gap-y-2 text-sm cursor-pointer py-4 border-2 px-5 mb-2.5 transition-colors",
         {
-          "border-ui-border-interactive":
-            selectedPaymentOptionId === paymentProviderId,
+          "border-creata-ink bg-creata-yellow-soft shadow-zine-sm": isSelected,
+          "border-creata-ink/40 bg-white hover:border-creata-ink": !isSelected,
         }
       )}
     >
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-x-4">
-          <Radio checked={selectedPaymentOptionId === paymentProviderId} />
-          <Text className="text-base-regular">
+          <Radio checked={isSelected} />
+          <Text className="font-medium text-creata-ink">
             {paymentInfoMap[paymentProviderId]?.title || paymentProviderId}
           </Text>
           {isManual(paymentProviderId) && isDevelopment && (
             <PaymentTest className="hidden small:block" />
           )}
         </div>
-        <span className="justify-self-end text-ui-fg-base">
+        <span className="justify-self-end text-creata-ink">
           {paymentInfoMap[paymentProviderId]?.icon}
         </span>
       </div>
       {isManual(paymentProviderId) && isDevelopment && (
-        <PaymentTest className="small:hidden text-[10px]" />
+        <PaymentTest className="small:hidden text-xs" />
       )}
       {children}
     </RadioGroupOption>
@@ -87,7 +88,7 @@ export const StripePaymentContainer = ({
       {selectedPaymentOptionId === paymentProviderId &&
         (stripeReady ? (
           <div className="my-4 transition-all duration-150 ease-in-out">
-            <Text className="txt-medium-plus text-ui-fg-base mb-1">
+            <Text className="font-medium text-creata-ink mb-2">
               Enter your payment details:
             </Text>
             <PaymentElement
@@ -96,10 +97,6 @@ export const StripePaymentContainer = ({
                 setError(null)
                 setPaymentComplete(e.complete)
               }}
-              // Without a handler Stripe.js reports a failed mount as an
-              // unhandled "payment Element loaderror" and the option renders
-              // blank with no explanation. Surface it in the checkout's own
-              // error slot instead.
               onLoadError={(e) => {
                 setPaymentComplete(false)
                 setError(

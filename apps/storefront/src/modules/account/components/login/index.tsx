@@ -17,13 +17,18 @@ const Login = ({ setCurrentView }: Props) => {
       className="max-w-sm w-full flex flex-col items-center"
       data-testid="login-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Sign in to access an enhanced shopping experience.
+      <span className="px-3 py-1 border-[1.5px] border-creata-ink bg-creata-yellow font-mono text-[10px] font-bold uppercase tracking-widest text-creata-ink -rotate-1 shadow-zine-sm mb-4">
+        CREATA 3D // ACCOUNT
+      </span>
+      <h1 className="font-display font-extrabold text-3xl uppercase text-creata-ink mb-2 text-center">
+        WELCOME BACK
+      </h1>
+      <p className="text-center text-sm text-creata-muted mb-8">
+        Sign in to manage your CREATA 3D orders and saved addresses.
       </p>
       {message?.state === "verification_required" && (
         <div
-          className="w-full mb-6 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
+          className="w-full mb-6 text-center text-sm text-creata-ink bg-creata-mint border-2 border-creata-ink shadow-zine-sm p-4"
           data-testid="login-verification-message"
         >
           We sent a verification link to <strong>{message.email}</strong>.
@@ -31,7 +36,7 @@ const Login = ({ setCurrentView }: Props) => {
         </div>
       )}
       <form className="w-full" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
+        <div className="flex flex-col w-full gap-y-3">
           <Input
             label="Email"
             name="email"
@@ -55,17 +60,18 @@ const Login = ({ setCurrentView }: Props) => {
           data-testid="login-error-message"
         />
         <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
-          Sign in
+          SIGN IN
         </SubmitButton>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
+      <span className="text-center text-creata-muted text-xs mt-6">
         Not a member?{" "}
         <button
+          type="button"
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
-          className="underline"
+          className="font-mono font-bold uppercase text-creata-ink underline underline-offset-2 hover:bg-creata-yellow px-1"
           data-testid="register-button"
         >
-          Join us
+          JOIN CREATA 3D
         </button>
         .
       </span>

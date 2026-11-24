@@ -15,11 +15,6 @@ type Refinement = ReturnType<
   typeof useCurrentRefinements
 >["items"][number]["refinements"][number]
 
-/**
- * What a single refinement reads as on its chip. The raw label is the facet
- * value, which is the option's `Size:M` form for options and a bare `true` for
- * the on-sale toggle — neither says what it filters on out of context.
- */
 function refinementLabel(refinement: Refinement, currencyCode: string) {
   const { attribute, label, value, operator } = refinement
 
@@ -60,11 +55,6 @@ function refinementLabel(refinement: Refinement, currencyCode: string) {
   return label
 }
 
-/**
- * Every active refinement as a chip that drops it, above the filters that set
- * them. The free-text query is excluded by the connector's own defaults, so
- * only what the sidebar controls shows up here.
- */
 const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
   const { items, refine } = useCurrentRefinements()
   const { canRefine: canClearAll, refine: clearAll } = useClearRefinements()
@@ -76,15 +66,19 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
   }
 
   return (
-    <div className="flex flex-col gap-y-3" data-testid="current-refinements">
-      <div className="flex items-center justify-between gap-x-2 pr-6">
-        <span className="txt-compact-small-plus text-ui-fg-subtle">
-          Applied filters
+    <div
+      className="flex flex-col gap-y-2.5 border-t-2 border-dashed border-creata-ink pt-4"
+      data-testid="current-refinements"
+    >
+      <div className="flex items-center justify-between gap-x-2">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink">
+          Applied
         </span>
         {canClearAll && (
           <button
+            type="button"
             onClick={clearAll}
-            className="txt-compact-small-plus text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+            className="font-mono text-[11px] font-bold uppercase text-creata-coral underline"
             data-testid="clear-refinements"
           >
             Clear all
@@ -92,7 +86,7 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
         )}
       </div>
 
-      <ul className="flex flex-wrap gap-2 pr-6">
+      <ul className="flex flex-wrap gap-1.5">
         {refinements.map((refinement) => {
           const label = refinementLabel(refinement, currencyCode)
 
@@ -103,13 +97,14 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
               }`}
             >
               <button
+                type="button"
                 onClick={() => refine(refinement)}
                 aria-label={`Remove filter ${label}`}
-                className="border-ui-border-interactive text-ui-fg-base border text-small-regular h-8 rounded-rounded px-3 flex items-center gap-x-1.5 transition-colors duration-150 hover:bg-ui-bg-base-hover"
+                className="border-[1.5px] border-creata-ink bg-creata-yellow text-creata-ink font-mono text-[11px] font-bold h-8 px-2.5 flex items-center gap-x-1.5 shadow-zine-sm hover:bg-creata-coral transition-colors"
                 data-testid="remove-refinement"
               >
-                {label}
-                <XMarkMini className="text-ui-fg-muted" />
+                <span>{label}</span>
+                <XMarkMini />
               </button>
             </li>
           )

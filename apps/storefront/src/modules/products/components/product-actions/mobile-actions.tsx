@@ -3,13 +3,12 @@ import { Button, clx } from "@modules/common/components/ui"
 import React, { Fragment, useMemo } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
+import { getProductPrice } from "@lib/util/get-product-price"
+import { isSimpleProduct } from "@lib/util/product"
+import { HttpTypes } from "@medusajs/types"
 import ChevronDown from "@modules/common/icons/chevron-down"
 import X from "@modules/common/icons/x"
-
-import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "./option-select"
-import { HttpTypes } from "@medusajs/types"
-import { isSimpleProduct } from "@lib/util/product"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
@@ -62,74 +61,77 @@ const MobileActions: React.FC<MobileActionsProps> = ({
         <Transition
           as={Fragment}
           show={show}
-          enter="ease-in-out duration-300"
+          enter="ease-in-out duration-250"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="ease-in duration-300"
+          leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
           <div
-            className="bg-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-gray-200"
+            className="bg-creata-cream flex flex-col gap-y-2.5 justify-center items-center p-4 w-full border-t-2 border-creata-ink"
             data-testid="mobile-actions"
           >
-            <div className="flex items-center gap-x-2">
-              <span data-testid="mobile-title">{product.title}</span>
-              <span>—</span>
-              {selectedPrice ? (
-                <div className="flex items-end gap-x-2 text-ui-fg-base">
+            <div className="flex items-center justify-between w-full gap-x-2 text-sm">
+              <span
+                className="font-display font-extrabold uppercase text-creata-ink truncate"
+                data-testid="mobile-title"
+              >
+                {product.title}
+              </span>
+              {selectedPrice && (
+                <div className="flex items-baseline gap-x-2 px-2 py-0.5 bg-creata-yellow border-[1.5px] border-creata-ink font-mono text-xs font-bold text-creata-ink shrink-0">
                   {selectedPrice.price_type === "sale" && (
-                    <p>
-                      <span className="line-through text-small-regular">
-                        {selectedPrice.original_price}
-                      </span>
-                    </p>
+                    <span className="line-through text-[11px] font-normal text-creata-muted">
+                      {selectedPrice.original_price}
+                    </span>
                   )}
                   <span
                     className={clx({
-                      "text-ui-fg-interactive":
-                        selectedPrice.price_type === "sale",
+                      "text-creata-coral": selectedPrice.price_type === "sale",
                     })}
                   >
                     {selectedPrice.calculated_price}
                   </span>
                 </div>
-              ) : (
-                <div></div>
               )}
             </div>
-            <div className={clx("grid grid-cols-2 w-full gap-x-4", {
-              "!grid-cols-1": isSimple
-            })}>
-              {!isSimple && <Button
-                type="button"
-                onClick={open}
-                variant="secondary"
-                className="w-full"
-                data-testid="mobile-actions-button"
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span>
-                    {variant
-                      ? Object.values(options).join(" / ")
-                      : "Select Options"}
-                  </span>
-                  <ChevronDown />
-                </div>
-              </Button>}
+            <div
+              className={clx("grid grid-cols-2 w-full gap-2.5", {
+                "!grid-cols-1": isSimple,
+              })}
+            >
+              {!isSimple && (
+                <Button
+                  type="button"
+                  onClick={open}
+                  variant="secondary"
+                  className="w-full h-11 text-xs"
+                  data-testid="mobile-actions-button"
+                >
+                  <div className="flex items-center justify-between w-full gap-1">
+                    <span className="truncate">
+                      {variant
+                        ? Object.values(options).join(" / ")
+                        : "Options"}
+                    </span>
+                    <ChevronDown />
+                  </div>
+                </Button>
+              )}
               <Button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!inStock || !variant}
-                className="w-full"
+                className="w-full h-11 text-xs"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {!variant
-                  ? "Select variant"
+                  ? "Select Variant"
                   : !inStock
-                  ? "Out of stock"
-                  : "Add to cart"}
+                  ? "Out of Stock"
+                  : "+ Add To Bag"}
               </Button>
             </div>
           </div>
@@ -139,21 +141,21 @@ const MobileActions: React.FC<MobileActionsProps> = ({
         <Dialog as="div" className="relative z-[75]" onClose={close}>
           <Transition.Child
             as={Fragment}
-            enter="ease-out duration-300"
+            enter="ease-out duration-250"
             enterFrom="opacity-0"
             enterTo="opacity-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-700 bg-opacity-75 backdrop-blur-sm" />
+            <div className="fixed inset-0 bg-creata-ink/45" />
           </Transition.Child>
 
           <div className="fixed bottom-0 inset-x-0">
             <div className="flex min-h-full h-full items-center justify-center text-center">
               <Transition.Child
                 as={Fragment}
-                enter="ease-out duration-300"
+                enter="ease-out duration-250"
                 enterFrom="opacity-0"
                 enterTo="opacity-100"
                 leave="ease-in duration-200"
@@ -164,33 +166,32 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   className="w-full h-full transform overflow-hidden text-left flex flex-col gap-y-3"
                   data-testid="mobile-actions-modal"
                 >
-                  <div className="w-full flex justify-end pr-6">
+                  <div className="w-full flex justify-end pr-5">
                     <button
+                      type="button"
                       onClick={close}
-                      className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center"
+                      className="bg-creata-yellow border-2 border-creata-ink shadow-zine-sm w-11 h-11 text-creata-ink flex justify-center items-center"
                       data-testid="close-modal-button"
                       aria-label="Close"
                     >
                       <X />
                     </button>
                   </div>
-                  <div className="bg-white px-6 py-12">
+                  <div className="bg-creata-cream border-t-2 border-creata-ink px-6 py-8">
                     {(product.variants?.length ?? 0) > 1 && (
-                      <div className="flex flex-col gap-y-6">
-                        {(product.options || []).map((option) => {
-                          return (
-                            <div key={option.id}>
-                              <OptionSelect
-                                option={option}
-                                current={options[option.id]}
-                                updateOption={updateOptions}
-                                title={option.title ?? ""}
-                                name={`mobile-options[${option.id}]`}
-                                disabled={optionsDisabled}
-                              />
-                            </div>
-                          )
-                        })}
+                      <div className="flex flex-col gap-y-5">
+                        {(product.options || []).map((option) => (
+                          <div key={option.id}>
+                            <OptionSelect
+                              option={option}
+                              current={options[option.id]}
+                              updateOption={updateOptions}
+                              title={option.title ?? ""}
+                              name={`mobile-options[${option.id}]`}
+                              disabled={optionsDisabled}
+                            />
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

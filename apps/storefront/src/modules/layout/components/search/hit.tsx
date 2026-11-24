@@ -3,8 +3,8 @@
 import Image from "next/image"
 import type { Hit as HitType } from "instantsearch.js"
 
+import { ObjectPlaceholderSvg } from "@modules/common/components/brand-mark"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import PlaceholderImage from "@modules/common/icons/placeholder-image"
 import { Text } from "@modules/common/components/ui"
 
 export type ProductHit = HitType<{
@@ -28,10 +28,10 @@ const SearchHit = ({ hit, onNavigate }: SearchHitProps) => {
       <LocalizedClientLink
         href={`/products/${hit.handle}`}
         onClick={onNavigate}
-        className="flex items-center gap-x-4 px-4 py-3 hover:bg-ui-bg-base-hover"
+        className="flex items-center gap-x-3.5 border-2 border-creata-ink bg-white p-2.5 shadow-zine-sm hover:bg-creata-yellow transition-colors"
         data-testid="search-hit-link"
       >
-        <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-rounded bg-ui-bg-subtle">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden border-[1.5px] border-creata-ink bg-creata-cream flex items-center justify-center">
           {hit.thumbnail ? (
             <Image
               src={hit.thumbnail}
@@ -42,12 +42,10 @@ const SearchHit = ({ hit, onNavigate }: SearchHitProps) => {
               draggable={false}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-ui-fg-muted">
-              <PlaceholderImage size={20} />
-            </div>
+            <ObjectPlaceholderSvg className="w-10 h-10" />
           )}
         </div>
-        <Text className="txt-medium text-ui-fg-base line-clamp-2">
+        <Text className="font-display font-extrabold text-sm text-creata-ink line-clamp-2">
           {hit.title}
         </Text>
       </LocalizedClientLink>

@@ -49,34 +49,36 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
 
   return (
     <>
-      <div className="flex items-center gap-x-3 border-b border-ui-border-base px-4">
-        <MagnifyingGlass className="shrink-0 text-ui-fg-muted" />
-        <input
-          type="search"
-          value={inputValue}
-          onChange={(event) => {
-            setInputValue(event.target.value)
-            refine(event.target.value)
-          }}
-          placeholder="Search products"
-          aria-label="Search products"
-          autoFocus
-          className="txt-medium w-full bg-transparent py-4 text-ui-fg-base outline-none placeholder:text-ui-fg-muted"
-          data-testid="search-input"
-        />
+      <div className="p-4 border-b-2 border-creata-ink bg-white">
+        <div className="flex items-center gap-x-3 border-2 border-creata-ink bg-creata-cream px-3.5 shadow-zine-sm focus-within:bg-creata-yellow/40">
+          <MagnifyingGlass className="shrink-0 text-creata-ink" />
+          <input
+            type="search"
+            value={inputValue}
+            onChange={(event) => {
+              setInputValue(event.target.value)
+              refine(event.target.value)
+            }}
+            placeholder="SEARCH 3D OBJECTS..."
+            aria-label="Search products"
+            autoFocus
+            className="w-full bg-transparent py-2.5 font-mono text-xs font-bold text-creata-ink outline-none placeholder:text-creata-muted"
+            data-testid="search-input"
+          />
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         {!hasInput ? (
           <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
+            className="px-4 py-10 text-center font-mono text-xs text-creata-muted uppercase"
             data-testid="search-empty"
           >
-            Start typing to search for products.
+            Start typing to search the catalog.
           </Text>
         ) : status === "error" ? (
           <Text
-            className="px-4 py-6 text-center text-ui-fg-error"
+            className="px-4 py-10 text-center text-rose-700 font-semibold"
             data-testid="search-error"
           >
             Couldn&apos;t search products
@@ -84,30 +86,30 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
           </Text>
         ) : !isSettled ? (
           <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
+            className="px-4 py-10 text-center font-mono text-xs text-creata-muted uppercase"
             data-testid="search-loading"
           >
             Searching&hellip;
           </Text>
         ) : hasResults ? (
-          <ul className="py-2" data-testid="search-results">
+          <ul className="flex flex-col gap-2.5" data-testid="search-results">
             {items.map((hit) => (
               <SearchHit key={hit.objectID} hit={hit} onNavigate={onNavigate} />
             ))}
           </ul>
         ) : isPending || !query.trim() ? (
           <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
+            className="px-4 py-10 text-center font-mono text-xs text-creata-muted uppercase"
             data-testid="search-loading"
           >
             Searching&hellip;
           </Text>
         ) : (
           <Text
-            className="px-4 py-6 text-center text-ui-fg-subtle"
+            className="px-4 py-10 text-center font-mono text-xs text-creata-muted uppercase"
             data-testid="search-no-results"
           >
-            No products found for &quot;{query}&quot;
+            No objects found for &quot;{query}&quot;
           </Text>
         )}
       </div>
@@ -121,7 +123,6 @@ const Search = () => {
 
   return (
     <>
-      {/* A real link so search works without JavaScript; with JS it opens the drawer instead. */}
       <Link
         href={`/${countryCode}/search`}
         onClick={(event) => {
@@ -129,10 +130,11 @@ const Search = () => {
           open()
         }}
         aria-label="Search products"
-        className="flex items-center hover:text-ui-fg-base"
+        className="inline-flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3.5 sm:py-2 border-[1.5px] border-creata-ink bg-white hover:bg-creata-mint shadow-zine-sm text-creata-ink font-mono text-xs font-bold uppercase gap-2 transition-colors"
         data-testid="nav-search-button"
       >
         <MagnifyingGlass />
+        <span className="hidden medium:inline">Search</span>
       </Link>
 
       <SearchDrawer isOpen={isOpen} close={close}>

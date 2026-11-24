@@ -13,23 +13,32 @@ const SearchPagination = () => {
     return null
   }
 
-  const renderPage = (page: number) => (
-    <button
-      key={page}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": page === currentRefinement,
-      })}
-      disabled={page === currentRefinement}
-      onClick={() => refine(page)}
-    >
-      {page + 1}
-    </button>
-  )
+  const renderPage = (page: number) => {
+    const isCurrent = page === currentRefinement
+    return (
+      <button
+        key={page}
+        type="button"
+        className={clx(
+          "w-10 h-10 border-2 border-creata-ink font-mono text-xs font-bold transition-all",
+          {
+            "bg-creata-ink text-creata-yellow": isCurrent,
+            "bg-white text-creata-ink shadow-zine-sm hover:bg-creata-yellow":
+              !isCurrent,
+          }
+        )}
+        disabled={isCurrent}
+        onClick={() => refine(page)}
+      >
+        {page + 1}
+      </button>
+    )
+  }
 
   const renderEllipsis = (key: string) => (
     <span
       key={key}
-      className="txt-xlarge-plus text-ui-fg-muted items-center cursor-default"
+      className="px-1.5 font-mono text-sm font-bold text-creata-muted select-none"
     >
       ...
     </span>
@@ -39,7 +48,7 @@ const SearchPagination = () => {
 
   return (
     <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid="product-pagination">
+      <div className="flex gap-2 items-center" data-testid="product-pagination">
         {!pages.includes(0) && renderPage(0)}
         {!pages.includes(0) && !pages.includes(1) && renderEllipsis("start")}
         {pages.map(renderPage)}

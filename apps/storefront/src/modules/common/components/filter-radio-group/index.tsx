@@ -1,5 +1,5 @@
-import { EllipseMiniSolid } from "@medusajs/icons"
-import { Label, RadioGroup, Text, clx } from "@modules/common/components/ui"
+import { Label, RadioGroup, clx } from "@modules/common/components/ui"
+
 type FilterRadioGroupProps = {
   title: string
   items: {
@@ -19,39 +19,42 @@ const FilterRadioGroup = ({
   "data-testid": dataTestId,
 }: FilterRadioGroupProps) => {
   return (
-    <div className="flex gap-x-3 flex-col gap-y-3">
-      <Text className="txt-compact-small-plus text-ui-fg-muted">{title}</Text>
-      <RadioGroup data-testid={dataTestId}>
-        {items?.map((i) => (
-          <div
-            key={i.value}
-            className={clx("flex items-center", {
-              "ml-[-23px]": i.value === value,
-            })}
-          >
-            {i.value === value && <EllipseMiniSolid className="mr-2" />}
-            <RadioGroup.Item
-              checked={i.value === value}
-              onChange={() => handleChange(i.value)}
-              className="hidden peer"
-              id={i.value}
-              value={i.value}
-            />
-            <Label
-              htmlFor={i.value}
-              className={clx(
-                "!txt-compact-small !transform-none text-ui-fg-subtle hover:cursor-pointer",
-                {
-                  "text-ui-fg-base": i.value === value,
-                }
-              )}
-              data-testid="radio-label"
-              data-active={i.value === value}
-            >
-              {i.label}
-            </Label>
-          </div>
-        ))}
+    <div className="flex flex-col gap-y-2.5">
+      <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink">
+        {title}
+      </span>
+      <RadioGroup className="gap-1.5" data-testid={dataTestId}>
+        {items?.map((i) => {
+          const isSelected = i.value === value
+          return (
+            <div key={i.value} className="flex items-center gap-2">
+              <RadioGroup.Item
+                checked={isSelected}
+                onChange={() => handleChange(i.value)}
+                className="sr-only peer"
+                id={i.value}
+                value={i.value}
+              />
+              <Label
+                htmlFor={i.value}
+                className={clx(
+                  "flex items-center justify-between w-full px-3 py-2 border-[1.5px] border-creata-ink font-mono text-[11px] font-bold uppercase cursor-pointer transition-all",
+                  {
+                    "bg-creata-ink text-creata-yellow shadow-none translate-x-[1px] translate-y-[1px]":
+                      isSelected,
+                    "bg-creata-cream text-creata-ink shadow-zine-sm hover:bg-creata-mint":
+                      !isSelected,
+                  }
+                )}
+                data-testid="radio-label"
+                data-active={isSelected}
+              >
+                <span>{i.label}</span>
+                {isSelected && <span aria-hidden="true">◆</span>}
+              </Label>
+            </div>
+          )
+        })}
       </RadioGroup>
     </div>
   )

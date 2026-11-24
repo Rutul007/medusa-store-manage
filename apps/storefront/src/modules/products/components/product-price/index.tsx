@@ -1,7 +1,6 @@
-import { clx } from "@modules/common/components/ui"
-
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
+import { clx } from "@modules/common/components/ui"
 
 export default function ProductPrice({
   product,
@@ -18,17 +17,24 @@ export default function ProductPrice({
   const selectedPrice = variant ? variantPrice : cheapestPrice
 
   if (!selectedPrice) {
-    return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
+    return (
+      <div className="block w-32 h-10 bg-creata-surface border-2 border-creata-ink animate-pulse" />
+    )
   }
 
   return (
-    <div className="flex flex-col text-ui-fg-base">
+    <div className="flex flex-col items-start text-creata-ink">
       <span
-        className={clx("text-xl-semi", {
-          "text-ui-fg-interactive": selectedPrice.price_type === "sale",
-        })}
+        className={clx(
+          "px-3 py-1 bg-creata-yellow border-2 border-creata-ink shadow-zine-sm font-mono text-2xl font-bold tracking-tight",
+          {
+            "text-creata-coral": selectedPrice.price_type === "sale",
+          }
+        )}
       >
-        {!variant && "From "}
+        {!variant && (
+          <span className="text-xs uppercase mr-1.5">From</span>
+        )}
         <span
           data-testid="product-price"
           data-value={selectedPrice.calculated_price_number}
@@ -37,9 +43,9 @@ export default function ProductPrice({
         </span>
       </span>
       {selectedPrice.price_type === "sale" && (
-        <>
-          <p>
-            <span className="text-ui-fg-subtle">Original: </span>
+        <div className="mt-2 flex items-center gap-2 font-mono text-xs font-bold">
+          <span className="text-creata-muted">
+            WAS{" "}
             <span
               className="line-through"
               data-testid="original-product-price"
@@ -47,11 +53,11 @@ export default function ProductPrice({
             >
               {selectedPrice.original_price}
             </span>
-          </p>
-          <span className="text-ui-fg-interactive">
+          </span>
+          <span className="px-2 py-0.5 border border-creata-ink bg-creata-coral text-white">
             -{selectedPrice.percentage_diff}%
           </span>
-        </>
+        </div>
       )}
     </div>
   )

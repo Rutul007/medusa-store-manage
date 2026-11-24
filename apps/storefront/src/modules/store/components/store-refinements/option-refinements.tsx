@@ -54,7 +54,6 @@ const OptionRefinements = () => {
   const { items, refine } = useRefinementList({
     attribute: OPTION_VALUES_ATTRIBUTE,
     limit: FACET_LIMIT,
-    // Alphabetical keeps a size or colour list stable as counts move around.
     sortBy: ["name:asc"],
     operator: "and",
   })
@@ -79,7 +78,7 @@ const OptionRefinements = () => {
             .filter((title) => !openTitles.includes(title))
         )
       }
-      className="flex flex-col gap-y-3 pr-6"
+      className="flex flex-col gap-y-2 border-t-2 border-dashed border-creata-ink pt-4"
     >
       {groups.map((group) => {
         const isOpen = !closedGroups.includes(group.title)
@@ -94,18 +93,20 @@ const OptionRefinements = () => {
             className="overflow-hidden"
           >
             <Accordion.Header>
-              <Accordion.Trigger className="flex w-full items-center justify-between py-3 text-left">
+              <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="txt-compact-small-plus text-ui-fg-base">
+                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink">
                     {group.title}
                   </span>
-                  <span className="txt-compact-small-plus text-ui-fg-muted">
-                    ({selectedCount})
-                  </span>
+                  {selectedCount > 0 && (
+                    <span className="px-1.5 py-0.5 bg-creata-yellow border border-creata-ink font-mono text-[10px] font-bold text-creata-ink">
+                      {selectedCount}
+                    </span>
+                  )}
                 </div>
                 <span
                   className={clsx(
-                    "flex h-7 w-7 items-center justify-center text-ui-fg-muted transition-transform duration-150",
+                    "flex h-6 w-6 items-center justify-center text-creata-ink transition-transform duration-150",
                     { "rotate-180": isOpen }
                   )}
                 >
@@ -113,26 +114,27 @@ const OptionRefinements = () => {
                 </span>
               </Accordion.Trigger>
             </Accordion.Header>
-            <Accordion.Content className="pb-4 pt-1">
-              <div className="flex flex-wrap gap-2">
+            <Accordion.Content className="pb-3 pt-1">
+              <div className="flex flex-wrap gap-1.5">
                 {group.values.map((value) => (
                   <button
                     key={value.value}
+                    type="button"
                     onClick={() => refine(value.value)}
                     aria-pressed={value.isRefined}
                     className={clsx(
-                      "border-ui-border-base border text-small-regular h-10 rounded-rounded px-3 flex items-center gap-x-1.5 transition-colors duration-150",
+                      "border-[1.5px] border-creata-ink font-mono text-[11px] font-bold h-8 px-2.5 flex items-center gap-x-1.5 shadow-zine-sm transition-all",
                       {
-                        "border-ui-border-interactive text-ui-fg-base":
+                        "bg-creata-ink text-creata-yellow translate-x-[1px] translate-y-[1px] shadow-none":
                           value.isRefined,
-                        "text-ui-fg-muted hover:text-ui-fg-base":
+                        "bg-white text-creata-ink hover:bg-creata-mint":
                           !value.isRefined,
                       }
                     )}
                     data-testid="option-refinement"
                   >
-                    {value.label}
-                    <span className="text-ui-fg-muted">({value.count})</span>
+                    <span>{value.label}</span>
+                    <span className="opacity-75">[{value.count}]</span>
                   </button>
                 ))}
               </div>

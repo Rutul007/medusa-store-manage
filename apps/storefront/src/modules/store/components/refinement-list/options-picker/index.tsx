@@ -18,7 +18,7 @@ const OptionsPicker = ({
   setOptionValueIds,
 }: OptionsPickerProps) => {
   const [options, setOptions] = useState<HttpTypes.StoreProductOption[]>([])
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const [closedIds, setClosedIds] = useState<string[]>([])
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -44,28 +44,30 @@ const OptionsPicker = ({
     fetchOptions()
   }, [])
 
-  useEffect(() => {
-    if (options.length) {
-      setOpenItems(options.map((option) => option.id))
-    }
-  }, [options])
-
   if (!options.length) {
     return null
   }
 
+  const openItems = options
+    .map((option) => option.id)
+    .filter((id) => !closedIds.includes(id))
+
   return (
-    <div className="flex flex-col gap-y-4">
-      <div className="flex items-center justify-between px-1">
-        <span className="txt-compact-small-plus text-ui-fg-subtle">
-          Options
-        </span>
-      </div>
+    <div className="flex flex-col gap-y-3 border-t-2 border-dashed border-creata-ink pt-4">
+      <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink">
+        Options
+      </span>
       <Accordion.Root
         type="multiple"
         value={openItems}
-        onValueChange={(values) => setOpenItems(values as string[])}
-        className="flex flex-col gap-y-3 pr-6"
+        onValueChange={(nextOpen) =>
+          setClosedIds(
+            options
+              .map((option) => option.id)
+              .filter((id) => !nextOpen.includes(id))
+          )
+        }
+        className="flex flex-col gap-y-2"
       >
         {options.map((option) => {
           const values =
@@ -104,18 +106,20 @@ const OptionsPicker = ({
               className="overflow-hidden"
             >
               <Accordion.Header>
-                <Accordion.Trigger className="flex w-full items-center justify-between py-3 text-left">
+                <Accordion.Trigger className="flex w-full items-center justify-between py-2 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="txt-compact-small-plus text-ui-fg-base">
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-creata-ink">
                       {option.title || "Option"}
                     </span>
-                    <span className="txt-compact-small-plus text-ui-fg-muted">
-                      ({selectedCount})
-                    </span>
+                    {selectedCount > 0 && (
+                      <span className="px-1.5 py-0.5 bg-creata-yellow border border-creata-ink font-mono text-[10px] font-bold">
+                        {selectedCount}
+                      </span>
+                    )}
                   </div>
                   <span
                     className={clsx(
-                      "flex h-7 w-7 items-center justify-center text-ui-fg-muted transition-transform duration-150",
+                      "flex h-6 w-6 items-center justify-center text-creata-ink transition-transform duration-150",
                       {
                         "rotate-180": isOpen,
                       }
@@ -125,21 +129,22 @@ const OptionsPicker = ({
                   </span>
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Content className="pb-4 pt-1">
-                <div className="flex flex-wrap gap-2">
+              <Accordion.Content className="pb-3 pt-1">
+                <div className="flex flex-wrap gap-1.5">
                   {values.map((value) => {
                     const isSelected = selectedValueIds.includes(value.id)
 
                     return (
                       <button
                         key={value.id}
+                        type="button"
                         onClick={() => toggleValue(value.id)}
                         className={clsx(
-                          "border-ui-border-base border text-small-regular h-10 rounded-rounded px-3 flex items-center transition-colors duration-150",
+                          "border-[1.5px] border-creata-ink font-mono text-[11px] font-bold h-8 px-2.5 flex items-center shadow-zine-sm transition-all",
                           {
-                            "border-ui-border-interactive text-ui-fg-base":
+                            "bg-creata-ink text-creata-yellow translate-x-[1px] translate-y-[1px] shadow-none":
                               isSelected,
-                            "text-ui-fg-muted hover:text-ui-fg-base":
+                            "bg-white text-creata-ink hover:bg-creata-mint":
                               !isSelected,
                           }
                         )}

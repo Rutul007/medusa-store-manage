@@ -18,7 +18,6 @@ export default async function RelatedProducts({
     return null
   }
 
-  // edit this function to define your related products logic
   const queryParams: HttpTypes.StoreProductListParams = {}
   if (region?.id) {
     queryParams.region_id = region.id
@@ -47,10 +46,10 @@ export default async function RelatedProducts({
   }
 
   return (
-    <ul className="product-grid grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
-      {products.map((product) => (
-        <li key={product.id}>
-          <Product region={region} product={product} />
+    <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-4 sm:gap-6">
+      {products.map((relatedProduct) => (
+        <li key={relatedProduct.id}>
+          <Product region={region} product={relatedProduct} />
         </li>
       ))}
     </ul>
